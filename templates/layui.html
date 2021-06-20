@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="../static/images/favicon.ico"/>
+    <link rel="stylesheet" href="../static/layui-mini/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="../static/layui-mini/css/public.css" media="all">
+</head>
+<div class="eletree"></div>
+<body>
+<div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱号:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入邮箱号"
+                   class="layui-input">
+        </div>
+        <button type="button" class="layui-btn layui-btn-normal" id="send_btn">发送验证码</button>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">验证码:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入验证码"
+                   class="layui-input">
+        </div>
+    </div>
+</div>
+<table class="layui-table" lay-even="" lay-skin="nob">
+                        <thead>
+                        <tr>
+                            <th>浏览文章数：</th>
+                            <th>{{ view_count }}篇</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>收藏文章数：</td>
+                            <td>{{ like_count }}篇</td>
+                        </tr>
+
+                        <tr>
+                            <td>文章评论数：</td>
+                            <td>{{ comment_count }}条</td>
+                        </tr>
+                        <tr>
+                            <td>浏览笔记数：</td>
+                            <td>{{ view_count }}篇</td>
+                        </tr>
+                        <tr>
+                            <td>收藏笔记数：</td>
+                            <td>{{ like_count }}篇</td>
+                        </tr>
+                        <tr>
+                            <td>笔记评论数：</td>
+                            <td>{{ like_count }}篇</td>
+                        </tr>
+                        <tr>
+                            <td>发表留言数：</td>
+                            <td>{{ leave_count }}条</td>
+                        </tr>
+                        </tbody>
+                    </table>
+<script src="../static/layui-mini/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script src="../static/layui-mini/js/lay-config.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'eleTree'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , eleTree = layui.eleTree;
+        layer.msg('只想弱弱提示');
+    });
+</script>
+</body>
+</html>

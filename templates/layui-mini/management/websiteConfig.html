@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>网站配置</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form layuimini-form">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>网站配置</legend>
+                <div class="layui-field-box">
+                    <div class="layui-row config-row">
+                        <div class="layui-col-xs12 layui-col-md4">
+                            <label class="layui-form-label required">网站名称</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="sitename" lay-verify="required" lay-reqtext="网站域名不能为空"
+                                       placeholder="请输入网站名称" value={{ website.name }} class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-md4">
+                            <label class="layui-form-label required">网站域名</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="domain" lay-verify="required" lay-reqtext="网站域名不能为空"
+                                       placeholder="请输入网站域名"
+                                       value={{ website.domain }} class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-md4">
+                            <label class="layui-form-label required">首页标题</label>
+                            <div class="layui-input-block">
+                                <input name="title" class="layui-input" lay-verify="required" lay-reqtext="首页标题不能为空"
+                                       placeholder="请输入首页标题" value={{ website.index_title }}>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">META关键词</label>
+                        <div class="layui-input-block">
+                            <textarea name="keywords" class="layui-textarea">{{ website.keywords }}</textarea>
+                            <tip>多个关键词用英文状态 , 号分割</tip>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">META描述</label>
+                        <div class="layui-input-block">
+                            <textarea name="descript" class="layui-textarea">{{ website.descript }}</textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label required">版权信息</label>
+                        <div class="layui-input-block">
+                            <textarea name="copyright" class="layui-textarea" lay-verify="required"
+                                      lay-reqtext="版权信息不能为空">{{ website.copyright }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>图片配置</legend>
+                <table class="layui-table photo-config" lay-skin="nob">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <span>前台logo</span>
+                                <img src={{ MEDIA_URL }}{{ images.foreground }}>
+                                <button type="button" class="layui-btn layui-btn-warm" id="foreground">修改</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <span>后台logo</span>
+                                <img src={{ MEDIA_URL }}{{ images.background }}>
+                                <button type="button" class="layui-btn layui-btn-warm" id="background">修改</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <span>icon</span>
+                                <img src={{ MEDIA_URL }}{{ images.icon }}>
+                                <button type="button" class="layui-btn layui-btn-warm" id="icon">修改</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span>默认头像</span>
+                                <img src={{ MEDIA_URL }}{{ images.photo }}>
+                                <button type="button" class="layui-btn layui-btn-warm" id="photo">修改</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <span>默认封面</span>
+                                <img src={{ MEDIA_URL }}{{ images.cover }}>
+                                <button type="button" class="layui-btn layui-btn-warm" id="cover">修改</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <span>赞赏二维码</span>
+                                <img src={{ MEDIA_URL }}{{ images.pay }}>
+                                <button type="button" class="layui-btn layui-btn-warm" id="pay">修改</button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+            <div class="layui-form-item">
+                <div class="layui-input-block submit-btn">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="setting">确认保存</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'upload'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , $ = layui.jquery
+            , upload = layui.upload;
+        //监听提交
+        form.on('submit(setting)', function (data) {
+            var formdata = $('form').serialize()
+            var photo_src = ''
+            $('.layui-btn-warm').each(function () {
+                var id = $(this).attr('id')
+                var src = $(this).siblings('img').attr('src')
+                photo_src = photo_src + '&' + id + '=' + src
+            })
+            data = formdata + photo_src
+            $.ajax({
+                type: "POST",
+                url: "{% url 'management:websiteConfig' %}",
+                data: data,
+                success: function (result) {
+                    if (result.code == 1) {
+                        layer.msg(result.msg, {icon: 6});
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+            return false;
+        });
+        // 图片上传
+        $('.layui-btn-warm').each(function () {
+            var id = $(this).attr('id')
+            var elem = '#' + id
+            imgUpload(elem);
+        })
+
+        function imgUpload(elem) {
+            upload.render({
+                elem: elem //绑定元素
+                , url: "{% url "account:imageUpload" %}"
+                , data: {
+                    src: $(elem).siblings('img').attr('src'),
+                    type: "images"
+                }
+                , done: function (res) {
+                    console.log("完成")
+                    //上传完毕回调
+                    layer.msg(res.msg, {icon: 6});
+                    $(elem).siblings('img').attr('src', res.src);
+                }
+                , error: function () {
+                    layer.alert("上传失败！", {icon: 6});
+                }
+            })
+        }
+
+        // 二维码图片点击放大
+        $('.photo-config img').on('click', function () {
+            layer.photos({
+                photos: '.photo-config',
+                closeBtn: 2,
+                anim: 0
+            });
+        })
+
+    });
+</script>
+</body>
+</html>

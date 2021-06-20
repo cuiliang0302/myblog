@@ -1,0 +1,85 @@
+{
+  "homeInfo": {
+    "title": "个人中心",
+    "href": "/account/personalCenter"
+  },
+  "logoInfo": {
+    "title": "崔亮的博客",
+    "image": "https://cdn.cuiliangblog.cn/static/images/favicon-gray.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "个人中心",
+      "icon": "",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "账号管理",
+          "href": "",
+          "icon": "fa fa-shield-alt",
+          "target": "",
+          "child": [
+            {
+              "title": "修改信息",
+              "href": "/account/changeInformation",
+              "icon": "fa fa-id-card",
+              "target": "_self"
+            },
+            {
+              "title": "修改密码",
+              "href": "/account/changePassword",
+              "icon": "fa fa-key",
+              "target": "_self"
+            },
+            {
+              "title": "修改邮箱",
+              "href": "/account/changeEmail",
+              "icon": "fa fa-envelope",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "我的足迹",
+          "href": "",
+          "icon": "fa fa-leaf",
+          "target": "_self",
+          "child": [
+            {
+              "title": "浏览记录",
+              "href": "/account/historyBrowse",
+              "icon": "fa fa-heart",
+              "target": "_self"
+            },
+            {
+              "title": "收藏记录",
+              "href": "/account/historyLike",
+              "icon": "fa fa-heart",
+              "target": "_self"
+            },
+            {
+              "title": "评论记录",
+              "href": "/account/historyComment",
+              "icon": "fa fa-comment",
+              "target": "_self"
+            },
+            {
+              "title": "留言记录",
+              "href": "/account/historyLeave",
+              "icon": "fa fa-file-signature",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "<a href=\"/\">博客首页<a>",
+      "icon": "",
+      "href": "",
+      "target": "_blank"
+    }
+  ]
+}

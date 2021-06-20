@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改邮箱</title>
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" method="post">
+            {% csrf_token %}
+            <div class="layui-card-body" pad15="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">{{ change_email_form.password.label }}</label>
+                    <div class="layui-input-inline">
+                        {{ change_email_form.password }}
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">{{ change_email_form.email.label }}</label>
+                    <div class="layui-input-inline">
+                        {{ change_email_form.email }}
+                    </div>
+                    <button type="button" class="layui-btn layui-btn-normal" id="send_btn">发送验证码</button>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">{{ change_email_form.email_code.label }}</label>
+                    <div class="layui-input-inline">
+                        {{ change_email_form.email_code }}
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-submit="">提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , $ = layui.jquery;
+        // 提示信息
+        var message = '{{ message }}';
+        if (message) {
+            layer.alert(message, {icon: 2})
+        }
+        // ajax加载动画
+        var load
+        $(document).on('ajaxStart', function () {
+            load = layer.load();
+        })
+        $(document).on('ajaxComplete', function () {
+            layer.close(load);
+        })
+        // 发送邮件验证码
+        $("#send_btn").click(function () {
+            var email = $("input[ name='email' ]").val();
+            if (email.length == 0) {
+                layer.msg("请输入邮箱号", {icon: 2})
+                return false;
+            }
+            var enoughRegex = new RegExp("[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[\\w](?:[\\w-]*[\\w])?", "g");
+            if (enoughRegex.test(email) == false) {
+                layer.msg("请输入正确的邮箱号", {icon: 2})
+                return false;
+            }
+            if ($("#send_btn").hasClass("layui-btn-disabled")) {
+                layer.msg("验证码已发送，请稍后再试", {icon: 2})
+                return false;
+            }
+            if (email_repeat(email)) {
+                layer.msg("该邮箱号已被绑定！", {icon: 2})
+                return false;
+            }
+            $.ajax({
+                type: "GET",
+                url: "{% url 'account:emailCode' %}",
+                data: {
+                    email: email,
+                    action: "更换邮箱",
+                    username: "{{ user.username }}",
+                },
+                success: function (result) {
+                    if (result.code == 1) {
+                        layer.msg(result.msg, {icon: 1});
+                        $("#send_btn").addClass("layui-btn-disabled");     //控制按钮为禁用
+                        var second = 60;
+                        var intervalObj = setInterval(function () {
+                            $("#send_btn").text("重新获取" + "(" + second + ")");
+                            if (second == 0) {
+                                $("#send_btn").text("获取验证码");
+                                $("#send_btn").removeClass("layui-btn-disabled");//将按钮可用
+                                /* 清除已设置的setInterval对象 */
+                                clearInterval(intervalObj);
+                            }
+                            second--;
+                        }, 1000);
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+        });
+
+        // ajax验证邮箱号存在
+        function email_repeat(value) {
+            var repeat = false;
+            $.ajax({
+                type: "GET",
+                url: "{% url 'account:registerCheck' %}",
+                async: false,
+                data: {email: value},
+                success: function (result) {
+                    if (result.code == 0) {
+                        repeat = true;
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+            return repeat;
+        }
+    });
+</script>
+</body>
+</html>

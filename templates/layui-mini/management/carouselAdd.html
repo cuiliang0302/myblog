@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增轮播图</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+</head>
+<body>
+
+<div class="cintent-card">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">图片标题：</label>
+            <div class="layui-input-block">
+                <input type="text" name="info" lay-verify="required" lay-reqtext="请填写文章标题" placeholder="请输入图片标题"
+                       class="layui-input" value="">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">访问链接：</label>
+            <div class="layui-input-block">
+                <input type="text" name="url" lay-verify="required" lay-reqtext="请填写访问链接" autocomplete="off"
+                       placeholder="请输入摘要"
+                       class="layui-input" value="">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否显示：</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_show" lay-skin="switch" lay-text="是|否">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">图片：</label>
+            <div class="layui-input-block article-photo-change">
+                <img src="{{ MEDIA_URL }}{{ img.cover }}" id="cover-img" width="700px" height="400px">
+                <button type="button" class="layui-btn layui-btn-normal" id="editimg">修改</button>
+                <tip>点击图片查看大图，图片分辨率：910*520</tip>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/js/lay-config.js' %}" charset="utf-8"></script>
+<script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+<script>
+    // 子页面提交文章方法
+    function submit() {
+        var is_show
+        if ($(" input[ name='is_show' ] ").is(':checked')) {
+            is_show = 1
+        } else {
+            is_show = 0
+        }
+        var code
+        $.ajax({
+            type: "POST",
+            url: '/management/carouselAdd/',
+            async: false,
+            data: {
+                info: $(" input[ name='info' ] ").val(),
+                url: $(" input[ name='url' ] ").val(),
+                img: $('#cover-img').attr('src'),
+                is_show: is_show,
+            },
+            success: function (result) {
+                if (result.code == 1) {
+                    code = 1;
+                } else {
+                    code = 0;
+                }
+            },
+            error: function (xhr) {
+                alert(xhr.text());
+            }
+        })
+        return code;
+    }
+
+    layui.use(['form', 'miniTab', 'croppers'], function () {
+        var $ = layui.jquery
+            , form = layui.form
+            , croppers = layui.croppers
+            , layer = layui.layer;
+        var open_height
+        //创建一个图片上传组件
+        croppers.render({
+            elem: '#editimg'
+            , saveW: 910     //保存宽度
+            , saveH: 520
+            , mark: 7 / 4    //选取比例
+            , area: '75%'  //弹窗宽度
+            , url: "{% url "account:imageUpload" %}"  //图片上传接口返回和（layui 的upload 模块）返回的JOSN一样
+            , data: {type: 'carousel'}
+            , done: function (src) { //上传完毕回调
+                console.log(src)
+                $("#cover-img").attr('src', src);
+            }
+        });
+        // 图片点击放大
+        $('.article-photo-change img').on('click', function () {
+            layer.photos({
+                photos: '.article-photo-change',
+                closeBtn: 2,
+                anim: 0
+            });
+        })
+    });
+</script>
+</body>
+</html>

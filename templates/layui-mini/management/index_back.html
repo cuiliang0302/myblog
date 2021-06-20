@@ -1,0 +1,450 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>后台管理—首页</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+    <style>
+        .top-panel {
+            border: 1px solid #eceff9;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .top-panel > .layui-card-body {
+            height: 60px;
+        }
+
+        .top-panel-number {
+            line-height: 60px;
+            font-size: 30px;
+            border-right: 1px solid #eceff9;
+        }
+
+        .top-panel-tips {
+            line-height: 30px;
+            font-size: 12px
+        }
+    </style>
+</head>
+<body>
+<!--<div class="layuimini-container">-->
+<div class="layuimini-main">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-xs12 layui-col-md3">
+            <div class="layui-card top-panel">
+                <div class="layui-card-header">页面访问量</div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space5">
+                        <div class="layui-col-xs8 layui-col-md8 top-panel-number">
+                            {{ today_pv }}
+                        </div>
+                        <div class="layui-col-xs4 layui-col-md4 top-panel-tips">
+                            {% if compare_pv < 0 %}
+                                比昨天<a style="color: #bd3004"><br>▼{{ compare_pv }}%</a>
+                            {% else %}
+                                比昨天<a style="color: #1aa094"><br>▲{{ compare_pv }}%</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-md3">
+            <div class="layui-card top-panel">
+                <div class="layui-card-header">访问用户数</div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space5">
+                        <div class="layui-col-xs8 layui-col-md8 top-panel-number">
+                            {{ today_uv }}
+                        </div>
+                        <div class="layui-col-xs4 layui-col-md4 top-panel-tips">
+                            {% if compare_pv < 0 %}
+                                比昨天<a style="color: #bd3004"><br>▼{{ compare_uv }}%</a>
+                            {% else %}
+                                比昨天<a style="color: #1aa094"><br>▲{{ compare_uv }}%</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-md3">
+            <div class="layui-card top-panel">
+                <div class="layui-card-header">平均访问时长</div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space5">
+                        <div class="layui-col-xs8 layui-col-md8 top-panel-number">
+                            {{ today_time }}
+                        </div>
+                        <div class="layui-col-xs4 layui-col-md4 top-panel-tips">
+                            {% if compare_pv < 0 %}
+                                比昨天<a style="color: #bd3004"><br>▼{{ compare_time }}%</a>
+                            {% else %}
+                                比昨天<a style="color: #1aa094"><br>▲{{ compare_time }}%</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="layui-col-xs12 layui-col-md3">
+            <div class="layui-card top-panel">
+                <div class="layui-card-header">平均访问页数</div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space5">
+                        <div class="layui-col-xs8 layui-col-md8 top-panel-number">
+                            {{ today_page }}
+                        </div>
+                        <div class="layui-col-xs4 layui-col-md4 top-panel-tips">
+                            {% if compare_pv < 0 %}
+                                比昨天<a style="color: #bd3004"><br>▼{{ compare_page }}%</a>
+                            {% else %}
+                                比昨天<a style="color: #1aa094"><br>▲{{ compare_page }}%</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-xs12 layui-col-md8">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    流量趋势
+                </div>
+                <div class="layui-card-body">
+                    <div id="echarts-records" style="background-color:#ffffff;min-height:310px;padding: 10px"></div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">主机性能</div>
+                <div class="layui-card-body" id="system-info">
+                    <div class="layuiadmin-card-list">
+                        <p class="layuiadmin-normal-font">CPU使用率</p>
+                        <div class="layui-progress layui-progress-big" lay-showpercent="yes">
+                            <div class="layui-progress-bar"
+                                 lay-percent={{ cpu_rate }}% style="width:{{ cpu_rate }}%"><span
+                                    class="layui-progress-text">{{ cpu_rate }}%</span></div>
+                        </div>
+                    </div>
+                    <div class="layuiadmin-card-list">
+                        <p class="layuiadmin-normal-font">系统负载</p>
+                        <div class="layui-progress layui-progress-big" lay-showpercent="yes">
+                            <div class="layui-progress-bar"
+                                 lay-percent={{ load_rate }}% style="width:{{ load_rate }}%"><span
+                                    class="layui-progress-text">{{ load_rate }}%</span></div>
+                        </div>
+                    </div>
+                    <div class="layuiadmin-card-list">
+                        <p class="layuiadmin-normal-font">内存使用率</p>
+                        <div class="layui-progress layui-progress-big" lay-showpercent="yes">
+                            <div class="layui-progress-bar"
+                                 lay-percent={{ memory_rate }}% style="width:{{ memory_rate }}%"><span
+                                    class="layui-progress-text">{{ memory_rate }}%</span></div>
+                        </div>
+                    </div>
+                    <div class="layuiadmin-card-list">
+                        <p class="layuiadmin-normal-font">磁盘使用率</p>
+                        <div class="layui-progress layui-progress-big" lay-showpercent="yes">
+                            <div class="layui-progress-bar"
+                                 lay-percent={{ disk_rate }}% style="width:{{ disk_rate }}%"><span
+                                    class="layui-progress-text">{{ disk_rate }}%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-sm12 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    访客浏览器分布
+                </div>
+                <div class="layui-card-body">
+                    <div id="browser-source" style="background-color:#ffffff;min-height:400px;padding: 10px"></div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm12 layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    受访页面TOP10
+                </div>
+                <div class="layui-card-body">
+                    <div id="category" style="background-color:#ffffff;min-height:400px;padding: 10px"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-col-sm12 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    访客地域分布
+                </div>
+                <div class="layui-card-body">
+                    <div id="browser-source" style="background-color:#ffffff;min-height:400px;padding: 10px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'echarts/echarts.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'echarts/wonderland.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script>
+    layui.use(['element', 'layer'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer;
+        // 进度条颜色
+        $('#system-info .layui-progress-bar').each(function () {
+            var rate = parseInt($(this).text().substring(0, $(this).text().length - 1))
+            if (rate > 50 && rate <= 80) {
+                $(this).addClass("layui-bg-orange");
+            } else if (rate > 80) {
+                $(this).addClass("layui-bg-red");
+            }
+        });
+        // 近7天流量趋势
+        $.ajax({
+            type: "GET",
+            url: "{% url 'management:echartsData' %}",
+            data: {
+                type: "trend",
+            },
+            success: function (result) {
+                console.log(result)
+                if (result.code == 1) {
+                    var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'wonderland');
+                    var optionRecords = {
+                        title: {
+                            text: '折线图堆叠'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        toolbox: {
+                            feature: {
+                                saveAsImage: {}
+                            }
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [
+                            {
+                                name: '邮件营销',
+                                type: 'line',
+                                stack: '总量',
+                                data: [120, 132, 101, 134, 90, 230, 210]
+                            },
+                            {
+                                name: '联盟广告',
+                                type: 'line',
+                                stack: '总量',
+                                data: [220, 182, 191, 234, 290, 330, 310]
+                            },
+                            {
+                                name: '视频广告',
+                                type: 'line',
+                                stack: '总量',
+                                data: [150, 232, 201, 154, 190, 330, 410]
+                            },
+                            {
+                                name: '直接访问',
+                                type: 'line',
+                                stack: '总量',
+                                data: [320, 332, 301, 334, 390, 330, 320]
+                            },
+                            {
+                                name: '搜索引擎',
+                                type: 'line',
+                                stack: '总量',
+                                data: [820, 932, 901, 934, 1290, 1330, 1320]
+                            }
+                        ]
+                    };
+                    echartsRecords.setOption(optionRecords);
+                } else {
+                    layer.alert(result.msg, {icon: 2});
+                }
+            },
+            error: function (xhr) {
+                alert(xhr.text());
+            }
+        })
+        // 受访页面统计
+        $.ajax({
+            type: "GET",
+            url: "{% url 'management:echartsData' %}",
+            data: {
+                type: "page",
+            },
+            success: function (result) {
+                if (result.code == 1) {
+                    var category = echarts.init(document.getElementById('category'), 'wonderland');
+                    var optionCategory = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ["浏览量", "访问数", "入口页次数", "停留时长"]
+                        },
+                        grid: {
+                            left: '1%',
+                            right: '1%',
+                            bottom: '1%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'value'
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: result.data.xAxis
+                        },
+                        series: [
+                            {
+                                name: '浏览量',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    show: true,
+                                    position: 'insideRight'
+                                },
+                                data: result.data.pv
+                            },
+                            {
+                                name: '访问数',
+                                type: 'bar',
+                                stack: '质量指标',
+                                label: {
+                                    show: true,
+                                    position: 'insideRight'
+                                },
+                                data: result.data.uv
+                            },
+                            {
+                                name: '入口页次数',
+                                type: 'bar',
+                                stack: '质量指标',
+                                label: {
+                                    show: true,
+                                    position: 'insideRight'
+                                },
+                                data: result.data.in_count
+                            },
+                            {
+                                name: '停留时长',
+                                type: 'bar',
+                                stack: '质量指标',
+                                label: {
+                                    show: true,
+                                    position: 'insideRight'
+                                },
+                                data: result.data.time
+                            }
+                        ]
+                    };
+                    category.setOption(optionCategory);
+                } else {
+                    layer.alert(result.msg, {icon: 2});
+                }
+            },
+            error: function (xhr) {
+                alert(xhr.text());
+            }
+        })
+        // 用户设备统计
+        $.ajax({
+            type: "GET",
+            url: "{% url 'management:echartsData' %}",
+            data: {
+                type: "device",
+            },
+            success: function (result) {
+                console.log(result)
+                if (result.code == 1) {
+                    // 访客浏览器分布饼图
+                    var myChart = echarts.init(document.getElementById('browser-source'), 'wonderland');
+                    // 指定图表的配置项和数据
+                    var option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b} : {c} ({d}%)'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: ['桌面端', '移动端']
+                        },
+                        series: [
+                            {
+                                name: '访客设备类型',
+                                type: 'pie',
+                                radius: '55%',
+                                center: ['50%', '60%'],
+                                data: [
+                                    {value: result.data.pc, name: '桌面端'},
+                                    {value: result.data.mobile, name: '移动端'},
+                                ],
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                } else {
+                    layer.alert(result.msg, {icon: 2});
+                }
+            },
+            error: function (xhr) {
+                alert(xhr.text());
+            }
+        })
+        // echarts 窗口缩放自适应
+        window.onresize = function () {
+            echartsRecords.resize();
+            category.resize();
+            myChart.resize();
+        }
+    })
+</script>
+</body>
+</html>

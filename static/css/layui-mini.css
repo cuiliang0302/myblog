@@ -1,0 +1,57 @@
+/*后台公共模板*/
+.layui-nav-child dd {
+    text-align: center;!important;
+}
+/*个人中心*/
+.layui-card-header{
+    font-weight: bold;!important;
+    font-size: 18px;
+}
+.layui-table td, .layui-table th{
+    text-align: center;!important;
+}
+.layui-table-header th div{
+    text-align: center;!important;
+}
+.cintent-card {
+    padding: 20px;
+}
+.layui-form .layui-form-item .photo-change {
+    width: 300px;!important;
+}
+.photo-change img {
+    border-radius: 15px;
+}
+.photo-change button {
+    float: right;
+    margin-top: 60px;
+}
+/*图片放大效果*/
+.img-zoom img {
+    transition: all 2s;
+}
+
+.img-zoom img:hover {
+    transform: scale(1.05);
+}
+/*网站管理*/
+.article-photo-change img{
+    border-radius: 15px;
+    width: 200px;
+    height: 100%;
+}
+/*弹窗内容*/
+.collection-box-div {
+    padding: 30px;
+}
+.categoryEdit-text {
+    padding-bottom: 20px;
+    text-align: center;
+}
+/*markdown样式适配*/
+.markdown-body ol li {
+    list-style-type: decimal;
+}
+.markdown-body ul li {
+    list-style-type: disc;
+}

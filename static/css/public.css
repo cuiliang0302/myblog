@@ -1,0 +1,392 @@
+/*公共部分样式*/
+body {
+    background-color: #f1f1f1;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+em {
+    font-style: normal;
+}
+
+/*导航栏固定*/
+.nav-fixed {
+    position: fixed;
+    width: 100%;
+}
+
+/*表格居中*/
+.layui-table thead tr th {
+    text-align: center;
+}
+
+.layui-table tbody td {
+    text-align: center;
+}
+
+/*图片放大效果*/
+.img-zoom img {
+    transition: all 1s;
+}
+
+.img-zoom img:hover {
+    transform: scale(1.1);
+}
+
+/*鼠标进过头像旋转*/
+.img-rotate {
+    transition: all 1s;
+}
+.img-rotate:hover {
+    transform: rotate(360deg);!important;
+}
+
+/*清除浮动*/
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/*管理页卡片标题居中*/
+.layui-card-header {
+    font-size: 20px;
+    text-align: center;
+}
+
+/*卡片悬浮特效*/
+.suspend {
+    -webkit-transition: all 2s cubic-bezier(0.02, 0.01, 0.47, 1);
+    transition: all 250ms cubic-bezier(.02, .01, .47, 1);
+    word-break: break-all;
+}
+
+.suspend:hover {
+    box-shadow: 0px 1rem 1rem 0px rgba(48, 55, 66, 0.15);
+    transform: translate(0, -5px);
+    transition-delay: 0s !important;
+}
+
+/*导航栏左侧部分*/
+.nav-left {
+    position: absolute;
+    left: 0;
+    width: 260px;
+    height: 60px;
+    z-index: 1;
+}
+
+/*导航栏logo*/
+.logo {
+    position: absolute;
+    left: 40px;
+    height: 60px;
+    width: 150px;
+    transition: 0.8s all;
+}
+
+.logo a {
+    display: block;
+    background: url("../images/logo.png") no-repeat;
+    background-size: 185px;
+    height: 60px;
+    width: 200px;
+    font-size: 0;
+}
+
+/*手机版展开导航栏按钮*/
+.nav-show-btn {
+    display: none;
+}
+
+nav .layui-nav {
+    padding-left: 250px;
+}
+
+/*导航右侧图标*/
+.nav-user-online {
+    float: right;
+    z-index: 3;
+    margin-right: 0;
+}
+
+.nav-rignt {
+    float: right;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 60px;
+    z-index: 1;
+    margin-right: 12em;
+}
+
+.nav-rignt span {
+    display: inline-block;
+    height: 100%;
+    float: right;
+}
+
+.nav-rignt .nav-search {
+    margin-right: 50px;
+}
+
+.nav-rignt span a {
+    padding: 0 20px;
+    font-size: 30px;
+    display: inline;
+    float: right;
+    color: #c4c5c9;
+    line-height: 60px;
+    height: 60px;
+    transition: all 0.5s;
+}
+
+.nav-rignt span a i {
+    font-size: 30px;
+}
+
+.nav-rignt a:hover {
+    color: white;
+    box-sizing: border-box;
+    border-bottom: 5px solid #5fb878;
+}
+
+.layui-side {
+    display: none;
+}
+
+
+/*文章标签*/
+.label-tag {
+    margin: 0 5px;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    transition: all 0.8s;
+}
+
+.label-tag:hover {
+    transform: scale(1.1);
+}
+
+/*各个不同颜色标签*/
+.label-color-0 a {
+    /*text-decoration: none;*/
+    color: white;
+!important;
+    background-color: #999;
+!important;
+}
+
+.tag-color-1, .tag-color-1 a {
+    color: white;
+!important;
+    background: firebrick;
+!important;
+}
+
+.tag-color-2, .tag-color-2 a {
+    color: white;
+!important;
+    background: skyblue;
+!important;
+}
+
+.tag-color-3, .tag-color-3 a {
+    color: white;
+!important;
+    background: saddlebrown;
+!important;
+}
+
+.tag-color-4, .tag-color-4 a {
+    color: white;
+!important;
+    background: green;
+!important;
+}
+
+.tag-color-5, .tag-color-5 a {
+    color: white;
+!important;
+    background: burlywood;
+!important;
+}
+
+.tag-color-6, .tag-color-6 a {
+    color: white;
+!important;
+    background: violet;
+!important;
+}
+
+.tag-color-7, .tag-color-7 a {
+    color: white;
+!important;
+    background: #e83e8c;
+!important;
+}
+
+.tag-color-8, .tag-color-8 a {
+    color: white;
+!important;
+    background: red;
+!important;
+}
+
+.tag-color-9, .tag-color-9 a {
+    color: white;
+!important;
+    background: blueviolet;
+!important;
+}
+
+.tag-color-10, .tag-color-10 a {
+    color: white;
+!important;
+    background: skyblue;
+!important;
+}
+
+/*个人中心和后台管理首页*/
+.layui-layout-body .layui-layout .layui-body {
+    background-color: #f2f2f2;
+}
+
+.layui-layout-body .layui-footer {
+    text-align: center;
+}
+
+.layui-footer span {
+    color: #7f8c8d;
+}
+
+.layui-footer a:hover {
+    color: #e74c3c;
+}
+
+.layui-layout-admin .layui-side {
+    display: block;
+}
+
+.manage-body {
+    margin: 15px;
+}
+
+.manage-body fieldset legend {
+    text-align: center;
+}
+
+.cintent-card {
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.manage-body .layui-form {
+    padding: 15px;
+}
+
+/*后台管理导航栏*/
+.layui-layout-admin .layui-header .layui-layout-left {
+    margin-left: 20px;
+}
+
+/*移动设备适配*/
+@media screen and (max-width: 768px) {
+    /*导航栏样式适配*/
+    nav .layui-nav {
+        height: 60px;
+    }
+
+    .layui-side {
+        display: block;
+    }
+
+    /*侧边导航栏按钮*/
+    .nav-show-btn {
+        font-family: layui-icon !important;
+        display: inline-block;
+        font-size: 40px;
+        color: #c4c5c9;
+        position: absolute;
+        top: 10px;
+        transition: 0.8s left;
+        z-index: 1000;
+        left: 0;
+    }
+
+    .nav-show-btn::before {
+        content: "\e66b";
+        color: #c4c5c9;
+    }
+
+    .nav-close-btn::before {
+        content: "\e668";
+        color: #c4c5c9;
+    }
+
+    /*侧边栏展开与折叠*/
+    .side-close {
+        left: -200px;
+        transition: 0.8s all;
+    }
+
+    .side-show {
+        left: 0;
+    }
+
+    .side-home {
+        margin-top: 60px;
+    }
+
+    .nav-close-btn {
+        left: 200px;
+        transition: 0.8s left;
+        z-index: 1000;
+    }
+
+    /*主页内容侧滑效果*/
+    .page-main {
+        transition: 0.8s all;
+        position: relative;
+        left: 0;
+    }
+
+    .layui-body .page-main-management {
+        padding-top: 0;
+    }
+
+    .page-main-side {
+        /*padding-left: 200px;*/
+        width: 100%;
+        transition: 0.8s all;
+        position: relative;
+        left: 200px;
+    }
+
+    .logo-side {
+        left: 0;
+        transition: 0.8s all;
+    }
+
+    /*图片裁剪*/
+    #layui-layer1 {
+        width: 100%;
+    }
+
+    /*个人中心后台管理首页*/
+    .layui-layout-body .layui-layout-admin .layui-nav-item img {
+        display: none;
+    }
+
+    .layui-layout-body .layui-layout-admin .layui-body {
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+    }
+}

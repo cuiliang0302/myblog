@@ -1,0 +1,98 @@
+{% extends 'base-blog.html' %}
+{% load static %}
+{% block title %}关于{% endblock %}
+{% block link %}
+    <link rel="stylesheet" href="{% static 'editormd/css/editormd.preview.css' %}"/>
+    <script src='{% static "editormd/lib/marked.min.js" %}'></script>
+    <script src='{% static "editormd/lib/prettify.min.js" %}'></script>
+    <script src='{% static "editormd/lib/raphael.min.js" %}'></script>
+    <script src='{% static "editormd/lib/underscore.min.js" %}'></script>
+    <script src='{% static "editormd/lib/sequence-diagram.min.js" %}'></script>
+    <script src='{% static "editormd/lib/flowchart.min.js" %}'></script>
+    <script src='{% static "editormd/lib/jquery.flowchart.min.js" %}'></script>
+    <script src='{% static "editormd/editormd.js" %}'></script>
+{% endblock %}
+{% block content %}
+    <main class="page-main">
+        <div class="layui-row">
+            <!--    页面左侧留空-->
+            <div class="layui-hide-xs layui-col-md2 left-null"></div>
+            <!--    页面主体部分-->
+            <div class="layui-col-xs12 layui-col-md10 page-main-centre">
+                <div class="layui-row main-centre">
+                    <!--            主体中间正文部分-->
+                    <div class="layui-col-md7 main-left">
+                        <!--            文章内容-->
+                        <div class="index-new">
+                            <div id='editormd-view' class="markdown-body">
+
+                                <textarea style="display:none;">
+{{ about_content.body }}
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                    {% include 'blog/aside.html' %}
+                    <!--            主体右侧部分-->
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // 导航栏当前标签页
+        $(".nav6").addClass("layui-this");
+    </script>
+    <script>
+        // markdown正文显示
+        editormd.markdownToHTML("editormd-view", {
+            htmlDecode: "style, script, iframe",
+            emoji: true,
+            taskList: true,
+            tex: true,
+            flowChart: true,
+            sequenceDiagram: true,
+        });
+        // 目录
+        w = $(window).width(); //浏览器当前窗口可视区域宽度
+        if (w > 768) {
+            openContent()
+        }
+
+        function openContent() {
+            layui.use('layer', function () {
+                var layer = layui.layer;
+                layer.ready(function () {
+                    setTimeout(function () {
+                        layer.open({
+                            id: 'catalogue'
+                            , type: 1
+                            , title: ['📋目录', 'font-size:26px;color:#1e9fff']
+                            , area: '230px'
+                            , maxWidth: '500'
+                            , maxHeight: '650'
+                            , shade: 0
+                            , anim: 5
+                            , offset: ['80px', '15px']
+                            , content: $('.markdown-toc-list').html()
+                            , success: function (layero) {
+                                layer.setTop(layero); //重点2
+                            }
+                        });
+                    }, 1000)
+                });
+            });
+        }
+
+        // 图片点击放大
+        $('#editormd-view img').on('click', function () {
+            layer.photos({
+                photos: '#editormd-view',
+                closeBtn: 2,
+                anim: 0
+            });
+        })
+    </script>
+{% endblock %}

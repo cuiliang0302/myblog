@@ -1,0 +1,364 @@
+body {
+    margin: 15px 15px 15px 15px;
+    background: #f2f2f2;
+}
+
+.layuimini-container {
+    border: 1px solid #f2f2f2;
+    border-radius: 5px;
+    background-color: #ffffff
+}
+
+.layuimini-main {
+    margin: 10px 10px 10px 10px;
+}
+
+/**必填红点 */
+.required:after {
+    content: '*';
+    color: red;
+    position: absolute;
+    margin-left: 4px;
+    font-weight: bold;
+    line-height: 1.8em;
+    top: 6px;
+    right: 5px;
+}
+
+tip {
+    display: inline-block;
+    margin-top: 10px;
+    line-height: 10px;
+    font-size: 10px;
+    color: #a29c9c;
+}
+
+/**搜索框*/
+.layuimini-container .table-search-fieldset {
+    margin: 0;
+    border: 1px solid #e6e6e6;
+    padding: 10px 20px 5px 20px;
+    color: #6b6b6b;
+}
+
+/**自定义滚动条样式 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #9c9da0;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em
+}
+
+/*layui-mini自定义样式*/
+/*图片放大效果*/
+.img-zoom img {
+    transition: all 2s;
+}
+
+.img-zoom img:hover {
+    transform: scale(1.05);
+}
+
+/*数据表格样式*/
+fieldset legend {
+    text-align: center;
+    font-size: 25px;
+}
+
+fieldset {
+    margin-bottom: 20px !important;
+}
+
+fieldset legend {
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 30px !important;
+}
+
+/*弹窗样式*/
+.collection-box-div {
+    padding: 20px;
+}
+
+.collection-text {
+    font-size: 15px;
+    padding-bottom: 20px;
+    text-align: center;
+}
+
+/*文章标签*/
+.label-tag {
+    margin: 0 5px;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    transition: all 0.8s;
+}
+
+.label-tag:hover {
+    transform: scale(1.1);
+}
+
+/*各个不同颜色标签*/
+.label-color-0 a {
+    /*text-decoration: none;*/
+    color: white;
+!important;
+    background-color: #999;
+!important;
+}
+
+.tag-color-1, .tag-color-1 a {
+    color: white;
+!important;
+    background: firebrick;
+!important;
+}
+
+.tag-color-2, .tag-color-2 a {
+    color: white;
+!important;
+    background: skyblue;
+!important;
+}
+
+.tag-color-3, .tag-color-3 a {
+    color: white;
+!important;
+    background: saddlebrown;
+!important;
+}
+
+.tag-color-4, .tag-color-4 a {
+    color: white;
+!important;
+    background: green;
+!important;
+}
+
+.tag-color-5, .tag-color-5 a {
+    color: white;
+!important;
+    background: burlywood;
+!important;
+}
+
+.tag-color-6, .tag-color-6 a {
+    color: white;
+!important;
+    background: violet;
+!important;
+}
+
+.tag-color-7, .tag-color-7 a {
+    color: white;
+!important;
+    background: #e83e8c;
+!important;
+}
+
+.tag-color-8, .tag-color-8 a {
+    color: white;
+!important;
+    background: red;
+!important;
+}
+
+.tag-color-9, .tag-color-9 a {
+    color: white;
+!important;
+    background: blueviolet;
+!important;
+}
+
+.tag-color-10, .tag-color-10 a {
+    color: white;
+!important;
+    background: skyblue;
+!important;
+}
+
+/*表格居中*/
+.layui-table-body {
+    text-align: center !important;
+}
+
+.layui-table-header th {
+    text-align: center !important;
+}
+
+.layuimini-main .layui-form-pane {
+    text-align: center;
+}
+
+.layui-table img {
+    height: 30px !important;
+}
+
+/*编辑文章*/
+
+.editormd ul li {
+    list-style: disc;
+}
+
+.editormd ol li {
+    list-style: decimal;
+}
+
+/*修改个人信息*/
+.photo-change {
+    width: 270px !important;
+}
+
+.photo-change button {
+    left: 25px;
+    position: relative;
+}
+
+#id_sex li {
+    display: inline-block;
+    margin-right: 40px;
+}
+
+#id_sex .layui-form-radio {
+    margin-top: 0px;
+    margin-right: 0px;
+    padding-right: 0px;
+}
+
+/*关于编辑页*/
+.about-textarea {
+    margin-left: 0px !important;
+}
+
+/*网站配置页*/
+.config-row {
+    padding-bottom: 20px;
+}
+
+.photo-config td {
+    text-align: center;
+}
+
+.photo-config span {
+    padding-right: 1.5em;
+}
+
+.photo-config button {
+    margin-left: 1.5em;
+}
+
+.info-photo {
+    text-align: center;
+}
+
+.info-photo img {
+    width: 150px;
+    height: 100%;
+    margin: 0 1em;
+}
+
+.submit-btn {
+    text-align: center;
+    margin: 50px 0;
+}
+
+.layuiadmin-big-font {
+    font-size: 36px;
+    color: #666;
+    line-height: 36px;
+    padding: 5px 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+}
+
+.layuiadmin-span-color {
+    position: absolute;
+    right: 15px;
+    color: #666;
+}
+
+.layuiadmin-normal-font {
+    padding-bottom: 10px;
+    font-size: 20px;
+    color: #666;
+    line-height: 24px;
+}
+
+.layuiadmin-card-list {
+    padding: 15px;
+}
+
+.layui-card .layui-card-header {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/*目录编排页*/
+.catalog-body {
+    padding: 10px 25px;
+}
+.catalog-button {
+    text-align: center;
+    padding: 10px;
+}
+
+/*个人中心首页*/
+.panel {
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+.layui-bg-number {
+    background-color: #F8F8F8;
+}
+.panel-body {
+    padding: 10px;
+    height: 76px;
+}
+.panel-title {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 12px;
+    color: inherit;
+}
+.label {
+    display: inline;
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+    margin-top: .3em;
+}
+.pull-right {
+    float: right;
+}
+.layui-bg-blue {
+    background-color: #1E9FFF!important;
+}
+.no-margins {
+    padding-top: 0.5em;
+}

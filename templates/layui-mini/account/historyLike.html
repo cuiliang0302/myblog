@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>收藏记录</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div class="layui-form layui-form-pane">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">文章标题</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="title" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">文章分类</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="category" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">浏览日期</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="time">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <table class="layui-hide" id="currentTable" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete">删除</button>
+            </div>
+        </script>
+        <script type="text/html" id="TableBar">
+            <a class="layui-btn layui-btn-xs data-count-view" lay-event="view">
+                <i class="layui-icon layui-icon-read"></i>查看</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs data-count-view" lay-event="delete">
+                <i class="layui-icon layui-icon-tread"></i>取消</a>
+        </script>
+    </div>
+</div>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script>
+    // 打开新窗口
+    function open_win(url) {
+        window.open(url);
+    }
+</script>
+<script>
+    layui.use(['form', 'table', 'laydate'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            laydate = layui.laydate;
+        //日期范围
+        var time_range
+        laydate.render({
+            elem: '#time'
+            , range: true
+            , done: function (value) {
+                return time_range = value
+            }
+        });
+        // 初始化表格
+        table.render({
+            elem: '#currentTable',
+            url: "{% url 'account:tableData' %}?type=like",//数据接口,
+            toolbar: '#toolbar',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            title: '文章列表',
+            cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'}
+                , {field: 'id', title: 'ID'}
+                , {field: 'title', title: '文章标题'}
+                , {
+                    field: 'category', title: '文章分类', sort: true, templet: function (res) {
+                        var str = '<span><a href="#" onclick="open_win(\'/blog/category-' + res.category_id + '\')">' + res.category + '</a></span>'
+                        return str;
+                    }
+                }
+                , {
+                    field: 'tags', title: '文章标签', templet: function (res) {
+                        var value = res.tags;
+                        var str = '';
+                        for (var key in value) {
+                            str += '<span class="label-tag tag-color-' + key + '">' +
+                                '<a href="#" onclick="open_win(\'/blog/tag-' + key + '\')">' + value[key] + '</a></span>'
+                        }
+                        return str;
+                    }
+                }
+                , {field: 'time', title: '浏览时间', sort: true}
+                , {title: '操作', toolbar: '#TableBar'}
+            ]],
+            initSort: {
+                field: 'time' //排序字段，对应 cols 设定的各字段名
+                , type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+            },
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            page: true,
+            even: true
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+            var search_len = 0
+            Object.keys(data.field).forEach(function (key) {
+                search_len = search_len + data.field[key].length
+            })
+            if (search_len == 0 && !(time_range)) {
+                layer.msg("请输入搜索条件！", {icon: 2})
+                return false;
+            }
+            var data = 'type=like&category=' + data.field.category + '&title=' + data.field.title + '&time=' + time_range
+            var url = '/account/tableSearch?' + data
+            //执行表格数据重载
+            table.reload('currentTable', {
+                url: url
+                , where: {
+                    searchParams: result
+                }
+            }, 'data');
+        });
+
+        // 头工具栏事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'delete') {
+                // 监听删除操作
+                var checkStatus = table.checkStatus('currentTable')
+                    , data = checkStatus.data;
+                layer.confirm('确定要取消收藏吗？', function (index) {
+                    var delidArr = []
+                    data.forEach(function (array) {
+                        delidArr.push(array.id)
+                    })
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'blog:deleteCollection' %}",
+                        data: {
+                            delidArr: delidArr.toString(),
+                            user_id: {{ user.id }}
+                        },
+                        success: function (result) {
+                            if (result.code == 1) {
+                                layer.msg(result.msg, {icon: 6});
+                                //执行表格数据重载
+                                var data = 'type=like'
+                                var url = '/account/tableData?' + data
+                                table.reload('currentTable', {
+                                    url: url
+                                    , where: {
+                                        searchParams: result
+                                    }
+                                }, 'data');
+                            } else {
+                                layer.alert(result.msg, {icon: 2});
+                            }
+                        },
+                        error: function (xhr) {
+                            alert(xhr.text());
+                        }
+                    })
+                    layer.closeAll();
+                })
+            }
+        });
+
+        // 监听行工具事件
+        table.on('tool(currentTableFilter)', function (obj) {
+            if (obj.event === 'view') {
+                // 查看文章
+                var url = '/blog/show-' + obj.data.article_id
+                open_win(url)
+            } else if (obj.event === 'delete') {
+                // 取消收藏
+                layer.confirm('确定要取消收藏吗？', function (index) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'blog:deleteCollection' %}",
+                        data: {
+                            article_id: obj.data.article_id,
+                            user_id: "{{ user.id }}"
+                        },
+                        success: function (result) {
+                            if (result.code == 1) {
+                                layer.msg(result.msg, {icon: 6});
+                                setTimeout(function () {
+                                    layer.closeAll();
+                                }, 2000);
+                                //执行表格数据重载
+                                var data = 'type=like'
+                                var url = '/account/tableData?' + data
+                                table.reload('currentTable', {
+                                    url: url
+                                    , where: {
+                                        searchParams: result
+                                    }
+                                }, 'data');
+                            } else {
+                                layer.msg(result.msg, {icon: 2});
+                                layer.closeAll();
+                            }
+                        },
+                        error: function (xhr) {
+                            alert(xhr.text());
+                        }
+                    })
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

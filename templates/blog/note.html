@@ -1,0 +1,68 @@
+{% extends 'base-blog.html' %}
+
+{% block title %}{{ note.name }}学习笔记-崔亮的博客{% endblock %}
+
+{% block content %}
+    <!--中间主体部分-->
+    <main class="page-main  clearfix">
+        <div class="layui-row"></div>
+        <!--    页面主体部分-->
+        <div class="layui-col-md-offset2 layui-col-sm12 layui-col-md8 page-main-centre">
+            <div class="layui-row main-centre">
+                <!--            主体左侧部分-->
+                <div class="layui-col-md9 main-left">
+                    <!--                    位置信息-->
+                    <blockquote class="layui-elem-quote location suspend">
+                        <p>您的位置： <a href="/">首页</a>
+                            <i class="layui-icon layui-icon-next"></i>
+                            <span>学习笔记</span>
+                            <i class="layui-icon layui-icon-next"></i>
+                            <span>{{ note.name }}</span>
+                        </p>
+                    </blockquote>
+                    <!--            文章列表-->
+                    <div class="index-new">
+                        <h4 id="list-title">
+                            <strong>
+                                <span>📜 笔记目录</span>
+                            </strong>
+                        </h4>
+                        <div id="catalogue"></div>
+                    </div>
+                </div>
+                {% include 'blog/aside.html' %}
+                <!--            主体右侧部分-->
+            </div>
+        </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    <script>
+        layui.use('tree', function () {
+            var tree = layui.tree;
+            //渲染
+            var catalogue = tree.render({
+                elem: '#catalogue'  //绑定元素
+                , data: {{ catalogue_list | safe }}
+                , showLine: false // 关闭连接线
+                , click: function (obj) {
+                    if (obj.data.href) {
+                        window.location.href = obj.data.href
+                    } else {
+                        return false
+                    }
+                }
+            });
+        });
+        // 导航栏当前标签页
+        var note_id = "#note-" + {{ note.id }}
+        var m_note_id = "#m-note-" + {{ note.id }}
+        $(note_id).addClass("layui-this")
+        $(note_id).parents("li").addClass("layui-this")
+        $(m_note_id).addClass("layui-this")
+        $(m_note_id).parents("li").addClass("layui-nav-itemed")
+
+    </script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base-blog.html' %}
+
+{% block title %}友情链接{% endblock %}
+
+{% block content %}
+    <main class="page-main">
+        <div class="layui-row">
+            <div class="layui-col-md-offset2 layui-col-sm12 layui-col-md8 page-main-centre">
+                <div class="recommended">
+                    <h2>🔥 热门推荐</h2>
+                    <div class="layui-row">
+                        {% for hot in hots %}
+                            <div class="layui-col-xs6 layui-col-md3">
+                            <div class="recommended-card suspend clearfix">
+                                <div>
+                                    <img lay-src="{{ MEDIA_URL }}{{ hot.logo }}" class="layui-nav-img">
+                                </div>
+                                <div>
+                                    <a href={{ hot.url }} target="_blank">{{ hot.name }}</a>
+                                    <p>{{ hot.describe }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-md-offset2 layui-col-sm12 layui-col-md8 page-main-centre">
+                <div class="recommended">
+                    <h2>⚓ 友情链接</h2>
+                    <div class="layui-row">
+                        {% for link in links %}
+                        <div class="layui-col-xs6 layui-col-md3">
+                            <div class="recommended-card suspend clearfix">
+                                <div>
+                                    <img lay-src="{{ MEDIA_URL }}{{ link.logo }}" class="layui-nav-img">
+                                </div>
+                                <div>
+                                    <a href={{ link.url }} target="_blank">{{ link.name }}</a>
+                                    <p>{{ link.describe }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>笔记目录编排</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/js/lay-module/eleTree/icon.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'fontawesome-free-5.11.2-web/css/all.min.css' %}" media='all'/>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">所属笔记：</label>
+                <div class="layui-input-block">
+                    <select id="which_note" name="note_id">
+                        {% for note in note_all %}
+                            <option value={{ note.id }}>{{ note.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="catalog-body">
+            <div class="eletree"></div>
+        </div>
+        <div class="catalog-button">
+            <button type="button" class="layui-btn layui-btn-warm">添加</button>
+            <button type="button" class="layui-btn layui-btn-normal">保存</button>
+            <button type="button" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/js/lay-config.js' %}" charset="utf-8"></script>
+<script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'eleTree'], function () {
+        var form = layui.form
+            , $ = layui.jquery
+            , layer = layui.layer
+            , eleTree = layui.eleTree
+            , ele
+            , index = 1000;
+
+        // 加载目录函数
+        function loadTree(note_id) {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'management:catalogEdit' %}",
+                data: {
+                    note_id: $("#which_note").val(),
+                },
+                success: function (result) {
+                    if (result.code == 1) {
+                        console.log(result.data)
+                        layer.msg(result.msg, {icon: 6});
+                        $('.eleTree-group').remove()
+                        // 目录树加载
+                        ele = eleTree({
+                            el: '.eletree',
+                            data: result.data,
+                            showCheckbox: true,
+                            highlightCurrent: true,
+                            showRadio: true,
+                            imgUrl: "/static/layui-mini/js/lay-module/eleTree/images/",
+                            icon: {
+                                fold: "fold.png",
+                                leaf: "leaf.png",
+                                checkFull: ".eletree_icon-check_full",
+                                checkHalf: ".eletree_icon-check_half",
+                                checkNone: ".eletree_icon-check_none",
+                                dropdownOff: ".eletree_icon-dropdown_right",
+                                dropdownOn: ".eletree_icon-dropdown_bottom",
+                                loading: ".eleTree-animate-rotate.eletree_icon-loading1",
+                                radioCheck: "radioCheck.png",
+                                radioCheckNone: "radioCheckNone.png",
+                            },
+                            draggable: true,
+                            rightMenuList: ["copy", "paste", "paste_before", "paste_after", "cut_paste"],
+                            customText: function (data) {
+                                var s = data.label
+                                if (data.isOpen) {
+                                    s += `&nbsp; <i class="eletree_icon-add addchild_test"></i>
+                                    <i class="eletree_icon-edit edit_test"></i>
+                                    <i class="eletree_icon-delete delete_test"></i>
+                                    <i class="fas fa-arrow-up"></i>
+                                    <i class="fas fa-arrow-down"></i>`
+                                }
+                                return s
+                            }
+                        })
+                        ele.on('checkbox', function (data) {
+                            // console.log(this)
+                            console.log(data)
+                        })
+                        ele.on('radio', function (data) {
+                            // console.log(this)
+                            console.log(data)
+                        })
+                        // 拖拽
+                        ele.on('drag', function (data) {
+                            // console.log(data)
+                            setTimeout(() => {
+                                data.load()
+                                // data.stop()
+                            }, 100);
+                        })
+                        // 节点编辑
+                        ele.on('click', function (data) {
+                            if (this.target.classList.contains('addchild_test')) {
+                                ele.append(data.data.id, {
+                                    id: ++index,
+                                    label: 'aaa' + index,
+                                })
+                                // 编辑完成触发add_child事件
+                                ele.edit(index, 'add_child')
+                            } else if (this.target.classList.contains('edit_test')) {
+                                // 编辑完成触发edit事件
+                                ele.edit(data.data.id, 'edit')
+                            } else if (this.target.classList.contains('delete_test')) {
+                                ele.remove(data.data.id)
+                            }
+                        }).on('add_child', function (data) {
+                            console.log(this)
+                            console.log(data)
+                            setTimeout(() => {
+                                data.load()
+                                // data.stop()
+                            }, 500);
+                        }).on('edit', function (data) {
+                            console.log(this)
+                            console.log(data)
+                            setTimeout(() => {
+                                data.load()
+                                // data.stop()
+                            }, 500);
+                        })
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+        }
+
+        //监听提交
+        form.on('submit(demo1)', function (data) {
+            layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            })
+            return false;
+        });
+        // 初始数据加载
+        var load_id = $("#which_note").val()
+        loadTree(load_id)
+        // 监听添加按钮
+        $('.layui-btn-warm').click(function () {
+            var index = layer.open({
+                title: '添加章标题',
+                type: 1,
+                shade: 0.2,
+                shadeClose: true,
+                content: '<div class="collection-box-div">\n' +
+                    '    <div class="collection-text">\n' +
+                    '        请输入章标题名称:\n' +
+                    '    </div>\n' +
+                    '    <div class="layui-input-inline">\n' +
+                    '        <input type="text" name="categoryname" lay-verify="required" lay-reqtext="请填写文章分类名"\n' +
+                    '               autocomplete="off" class="layui-input">\n' +
+                    '    </div>\n' +
+                    '</div>',
+                btn: ['确定', '取消'],
+                btnAlign: 'c',
+                yes: function () {
+                    var categoryname = $('input[name="categoryname"]').val()
+                    ele.append("", [
+                        {
+                            label: categoryname,
+                            id: ++index,
+                            isOpen: true,
+                        }
+                    ])
+                    layer.closeAll();
+                },
+                btn2: function () {
+                    layer.closeAll();
+                }
+            });
+        })
+        // 监听单选框切换
+        form.on('select', function (data) {
+            var select_id = data.value
+            loadTree(select_id)
+        });
+        // 提交保存按钮
+        $('.layui-btn-normal').click(function () {
+            var catalog_data = ele.getAllNodeData()
+            var data = JSON.stringify(catalog_data)
+            $.ajax({
+                type: "POST",
+                url: "{% url 'management:catalogEdit' %}",
+                data: {
+                    note_id: $("#which_note").val(),
+                    catalog_data: data
+                },
+                success: function (result) {
+                    if (result.code == 1) {
+                        layer.msg(result.msg, {icon: 6});
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+        })
+        // 重置按钮
+        $('.layui-btn-primary').click(function () {
+            var reload_id = $("#which_note").val()
+            loadTree(reload_id)
+        })
+    });
+</script>
+
+</body>
+</html>

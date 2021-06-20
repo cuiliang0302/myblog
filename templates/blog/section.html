@@ -1,0 +1,728 @@
+{% extends 'base-blog.html' %}
+{% load static %}
+{% block title %}{{ section.title }}-崔亮的博客{% endblock %}
+{% block link %}
+    <link rel="stylesheet" href="{% static 'editormd/css/editormd.preview.css' %}"/>
+    <script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+    <script src='{% static "editormd/lib/marked.min.js" %}'></script>
+    <script src='{% static "editormd/lib/prettify.min.js" %}'></script>
+    <script src='{% static "editormd/lib/raphael.min.js" %}'></script>
+    <script src='{% static "editormd/lib/underscore.min.js" %}'></script>
+    <script src='{% static "editormd/lib/sequence-diagram.min.js" %}'></script>
+    <script src='{% static "editormd/lib/flowchart.min.js" %}'></script>
+    <script src='{% static "editormd/lib/jquery.flowchart.min.js" %}'></script>
+    <script src='{% static "editormd/editormd.js" %}'></script>
+{% endblock %}
+
+{% block content %}
+    <main class="page-main">
+        <div class="layui-row">
+            <div class="layui-col-md2 layui-hide-xs" style="height: 1px">
+                <div class="content-catalogue">
+                    <div id="catalogue"></div>
+                </div>
+            </div>
+            <div class="layui-col-md8 main-centre">
+                <div class="index-new">
+                <h1 class="article-title">{{ section.title }}</h1>
+                    <div class="article-info">
+                            <span>
+                                <i class="fas fa-clock">{{ section.created_time }}</i>
+                            </span>
+                        <span>
+                                <i class="fas fa-eye">{{ section.view }}</i>
+                            </span>
+                        <span>
+                                <i class="fas fa-thumbs-up" id="like_action">{{ section.like }}</i>
+                            </span>
+                        <span>
+                                <i class="fas fa-heart" id="collection_action">{{ section.collection }}</i>
+                            </span>
+                        <span>
+                                <i class="fas fa-comment-dots" id="collection_action">{{ section.comment }}</i>
+                            </span>
+                    </div>
+                    <div id='editormd-view' class="markdown-body" style="width: 95%">
+                                <textarea style="display:none;">
+{{ section.body }}
+                                </textarea>
+                    </div>
+                    <div class="article-action">
+                        <p>码字不易，转载请注明本文链接，您的打赏是对我最大的支持!</p>
+                        <div id="article-action">
+                            <a class="article-like" href="javascript:">
+                                <i class="layui-icon layui-icon-praise" id="like-text">点赞</i>
+                            </a>
+                            <a class="article-reward" href="javascript:">打赏
+                                <div id="reward-box" class="reward-box-show">
+                                    <h5>❤️您可以选择一种方式赞助本站</h5>
+                                    <img lay-src="{{ MEDIA_URL }}{{ img.pay }}">
+                                </div>
+                            </a>
+                            {% if article_like  == '0' %}
+                                <a class="article-collection" href="javascript:">
+                                    <i class="layui-icon layui-icon-heart" id="collection-text">收藏</i>
+                                    <div id="collection-box" class="layui-hide">
+                                        <div class="collection-box-div">
+                                            您尚未登录，请先登录然后收藏笔记
+                                        </div>
+                                    </div>
+                                </a>
+                            {% else %}
+                                <a class="article-collection iscollection" href="javascript:">
+                                    <i class="layui-icon layui-icon-heart" id="collection-text">已收藏</i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="content-relevance">
+                        {% if last_content %}
+                            <a href="/blog/section-{{ last_content.section.id }}" class="article-last">
+                                <span class="point-icon point-left"><i class="layui-icon layui-icon-left"></i></span>
+                                <span class="point-title point-left">{{ last_content.order }}. {{ last_content.section.title }}</span>
+                            </a>
+                        {% else %}
+                            <a class="article-last">
+                                <span class="point-icon point-left"><i class="layui-icon layui-icon-left"></i></span>
+                                <span class="point-title point-left">已是第一篇笔记</span>
+                            </a>
+                        {% endif %}
+                        {% if next_content %}
+                            <a href="/blog/section-{{ next_content.section.id }}" class="article-next">
+                                <span class="point-icon  point-right"><i class="layui-icon layui-icon-right"></i></span>
+                                <span class="point-title point-right">{{ next_content.order }}. {{ next_content.section.title }}</span>
+                            </a>
+                        {% else %}
+                            <a class="article-next">
+                                <span class="point-icon  point-right"><i class="layui-icon layui-icon-right"></i></span>
+                                <span class="point-title point-right">已是最后一篇笔记</span>
+                            </a>
+                        {% endif %}
+
+                    </div>
+                    <div class="index-new message-board">
+                        <div class="message-editor">
+                            <div class="message-title clearfix">
+                                <div><h1>📝 我要评论</h1></div>
+                                <div>
+                                    {% if comment_count == 0 %}
+                                        <em>暂无评论</em>
+                                    {% else %}
+                                        <em>{{ comment_count }}条评论</em>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <hr class="layui-bg-gray">
+                            <div class="layui-row message-body">
+                                <div class="layui-hide-xs layui-col-md1">
+                                    <a>
+                                        {% if userinfo.photo %}
+                                            <img src="{{ MEDIA_URL }}{{ userinfo.photo }}"
+                                                 class="layui-nav-img img-rotate">
+                                        {% else %}
+                                            <img src="{{ MEDIA_URL }}{{ img.photo }}" class="layui-nav-img img-rotate">
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                <div class="layui-col-xs12 layui-col-md10">
+                                    <textarea id="comment"></textarea>
+                                </div>
+                                <div class="layui-col-xs2 layui-col-md1">
+                                    <button type="button" class="layui-btn layui-btn-normal">评论</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-tab">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">全部评论</li>
+                                <li>热门评论</li>
+                                <li>我的评论</li>
+                            </ul>
+                            <div class="layui-tab-content">
+                                {#                                    最新评论#}
+                                <div class="layui-tab-item layui-show">
+                                    {% if all_comment %}
+                                        {% for ol in all_comment %}
+                                            <ol class="list-body">
+                                                {% for li in ol %}
+                                                    <li class="reply-{{ li.level }} message-content"
+                                                        id="all-{{ li.id }}">
+                                                        <a href={{ li.web }} target="_blank">
+                                                            <img lay-src="{{ MEDIA_URL }}{{ li.photo }}"
+                                                                 class="layui-nav-img img-rotate">
+                                                        </a>
+                                                        <div class="text-box">
+                                                            <div class="box-info">
+                                                                {% if li.reply_name == 'None' %}
+                                                                    <a href={{ li.web }} target="_blank">{{ li.username }}</a>
+                                                                {% else %}
+                                                                    <a href={{ li.web }} target="_blank">{{ li.username }}</a>
+                                                                    <em>回复</em>
+                                                                    <a href={{ li.reply_web }} target="_blank">{{ li.reply_name }}</a>
+                                                                {% endif %}
+                                                                <span class="timeago"
+                                                                      datetime="{{ li.time }}"></span>
+                                                            </div>
+                                                            <div class="box-body">
+                                                                {{ li.content | safe }}
+                                                            </div>
+                                                            <div class="box-action">
+                                                                <a href="javascript:;" class="action-like"><i
+                                                                        class="fas fa-thumbs-up"></i>赞<em>{{ li.like }}</em></a>
+                                                                {% if li.username == user.username %}
+                                                                    <a href="javascript:;"
+                                                                       class="action-reply click-no"><i
+                                                                            class="fas fa-comment-alt"></i>回复</a>
+                                                                {% else %}
+                                                                    <a href="javascript:;" class="action-reply"><i
+                                                                            class="fas fa-comment-alt"></i>回复</a>
+                                                                {% endif %}
+                                                                {% if li.username == user.username %}
+                                                                    <a href="javascript:;"
+                                                                       class="action-delete"><i
+                                                                            class="fas fa-trash-alt"></i>删除</a>
+                                                                {% else %}
+                                                                    <a href="javascript:;"
+                                                                       class="action-delete click-no"><i
+                                                                            class="fas fa-trash-alt"></i>删除</a>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                {% endfor %}
+                                            </ol>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="comment-tips">
+                                            <h3>暂无评论哦，快来评论一下吧！</h3>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                                {#热门评论#}
+                                <div class="layui-tab-item">
+                                    <ol class="list-body">
+                                        {% if hot_comment %}
+                                            {% for i in hot_comment %}
+                                                <li class="message-content" id="hot-{{ i.id }}">
+                                                    <a href={{ i.user.userinfo.web }} target="_blank">
+                                                        <img src="{{ MEDIA_URL }}{{ i.user.userinfo.photo }}"
+                                                             class="layui-nav-img img-rotate">
+                                                    </a>
+                                                    <div class="text-box">
+                                                        <div class="box-info">
+                                                            <a href={{ i.user.userinfo.web }} target="_blank">{{ i.user.username }}</a>
+                                                            <span class="timeago"
+                                                                  datetime="{{ i.time|date:"Y-m-d H:i:s" }}"></span>
+                                                        </div>
+                                                        <div class="box-body">
+                                                            {{ i.content | safe }}
+                                                        </div>
+                                                        <div class="box-action">
+                                                            <a href="javascript:;" class="action-like"><i
+                                                                    class="fas fa-thumbs-up"></i>赞<em>{{ i.like }}</em></a>
+                                                            <a href="javascript:;"
+                                                               class="action-reply click-no"><i
+                                                                    class="fas fa-comment-alt"></i>回复</a>
+                                                            {% if i.user.username == user.username %}
+                                                                <a href="javascript:;" class="action-delete"><i
+                                                                        class="fas fa-trash-alt"></i>删除</a>
+                                                            {% else %}
+                                                                <a href="javascript:;"
+                                                                   class="action-delete click-no"><i
+                                                                        class="fas fa-trash-alt"></i>删除</a>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="comment-tips">
+                                                <h3>暂无评论哦，快来评论一下吧！</h3>
+                                            </div>
+                                        {% endif %}
+                                    </ol>
+                                </div>
+                                {#                                        我的评论#}
+                                <div class="layui-tab-item">
+                                    {% if my_comment %}
+                                        <ol class="list-body">
+                                            {% for i in my_comment %}
+                                                <li class="message-content" id="my-{{ i.id }}">
+                                                    <a href={{ i.user.userinfo.web }} target="_blank">
+                                                        <img src="{{ MEDIA_URL }}{{ i.user.userinfo.photo }}"
+                                                             class="layui-nav-img img-rotate">
+                                                    </a>
+                                                    <div class="text-box">
+                                                        <div class="box-info">
+                                                            <a href={{ i.user.userinfo.web }} target="_blank">{{ i.user.username }}</a>
+                                                            <span class="timeago"
+                                                                  datetime="{{ i.time|date:"Y-m-d H:i:s" }}"></span>
+                                                        </div>
+                                                        <div class="box-body">
+                                                            {{ i.content |safe }}
+                                                        </div>
+                                                        <div class="box-action">
+                                                            <a href="javascript:;" class="action-like"><i
+                                                                    class="fas fa-thumbs-up"></i>赞<em>{{ i.like }}</em></a>
+                                                            <a href="javascript:;"
+                                                               class="action-reply click-no"><i
+                                                                    class="fas fa-comment-alt"></i>回复</a>
+                                                            {% if i.user.username == user.username %}
+                                                                <a href="javascript:;"
+                                                                   class="action-delete"><i
+                                                                        class="fas fa-trash-alt"></i>删除</a>
+                                                            {% else %}
+                                                                <a href="javascript:;"
+                                                                   class="action-delete click-no"><i
+                                                                        class="fas fa-trash-alt"></i>删除</a>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                            {% else %}
+                                            <div class="comment-tips">
+                                                <h3>🥺您还没有发表评论，快来评论吧！</h3>
+                                            </div>
+                                        </ol>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="layui-col-md2 layui-hide-xs">
+                <div class="content-index"></div>
+            </div>
+        </div>
+        {#        回复评论弹窗#}
+        <div id="reply-div">
+            <textarea id="reply" style="display: none;"></textarea>
+        </div>
+    </main>
+{% endblock %}
+{% block js %}
+    <script>
+        // 评论富文本编辑器
+        layui.use(['layedit', 'layer', 'rate', 'flow', 'form', 'tree'], function () {
+            var layedit = layui.layedit;
+            var $ = layui.jquery;
+            var layer = layui.layer;
+            var flow = layui.flow;
+            var form = layui.form;
+            var reply_textarea;
+            var tree = layui.tree;
+            //当你执行这样一个方法时，即对页面中的全部带有lay-src的img元素开启了懒加载（当然你也可以指定相关img）
+            flow.lazyimg();
+            // 富文本编辑器
+            form.render(); //更新全部
+            // 图片接口放到建立编辑器前面，否则无效
+            layedit.set({
+                uploadImage: {
+                    url: '{% url "account:commentUpload" %}', //接口url
+                    type: 'post', //默认post
+                }
+            });
+            // 设置发表评论编辑器
+            var index = layedit.build('comment', {
+                height: 150 //设置编辑器高度
+                , tool: ['face', 'image', '|', 'link', 'unlink']
+            });
+            // 建立发表评论编辑器
+            form.verify({ // 这里就是把富文本数据同步到<textarea>中
+                content: function (value) {
+                    return layedit.sync(index);
+                }
+            });
+            // markdown正文显示
+            editormd.markdownToHTML("editormd-view", {
+                htmlDecode: "style, script, iframe",
+                emoji: true,
+                taskList: true,
+                tex: true,
+                flowChart: true,
+                sequenceDiagram: true,
+            });
+            // 发表评论按钮事件
+            $(".message-body button").click(function () {
+                var $content = layedit.getContent(index)
+                if ('{{ user.id }}' == 'None') {
+                    layer.open({
+                        type: 1,
+                        title: '发表评论',
+                        shadeClose: true,
+                        content: $('#collection-box').html(),
+                        btn: ['登录'],
+                        btnAlign: 'c',
+                        yes: function (index) {
+                            window.location.href = "{% url 'account:loginRegister' %}?next=" + window.location.pathname
+                            layer.close(index);
+                        }
+                    })
+                    return false;
+                }
+                if ($content.length == 0) {
+                    layer.msg('亲~请先输入内容，然后再提交哦！', {icon: 5});
+                    return false;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'blog:postComment' %}",
+                    data: {
+                        section_id: "{{ section.id }}",
+                        content: layedit.getContent(index),
+                        username: "{{ user.username }}",
+                        level: 0,
+                        type: 'note'
+                    },
+                    success: function (result) {
+                        if (result.code == 1) {
+                            // 文本域内容非空，创建节点
+                            var $record = createEle($content);
+                            $(".layui-tab-item").prepend($record);
+                            var timeago = layui.timeago;
+                            timeago.render($('.timeago'));
+                            layer.msg(result.msg, {icon: 6});
+                            layui.layedit.clearContent(index);
+                        } else {
+                            layer.alert(result.msg, {icon: 2});
+                        }
+                    },
+                    error: function (xhr) {
+                        alert(xhr.text());
+                    }
+                })
+            })
+            // 评论点赞
+            $("body").delegate(".action-like", "click", function () {
+                var num = $(this).find("em").text();
+                var $like_click = $(this);
+                var like_id = $like_click.parents(".message-content").attr("id").replace(/[^\d]/g, '')
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'blog:likeComment' %}",
+                    data: {
+                        like_id: like_id,
+                        type: 'note'
+                    },
+                    success: function (result) {
+                        if (result.code == 1) {
+                            $like_click.find("em").html(parseInt(num) + 1);
+                            $like_click.addClass("click-no");
+                            layer.msg(result.msg, {icon: 6});
+                        } else {
+                            layer.alert(result.msg, {icon: 2});
+                        }
+                    },
+                    error: function (xhr) {
+                        alert(xhr.text());
+                    }
+                })
+            })
+            // 评论删除
+            $("body").delegate(".action-delete", "click", function () {
+                var $del_click = $(this)
+                var del_id = $del_click.parents(".message-content").attr("id").replace(/[^\d]/g, '')
+                var del_level = $del_click.parents(".message-content").attr("class").replace(/[^\d]/g, '')
+                var reply_count = $del_click.parents(".list-body").find("li").length
+                layer.msg('确定要删除这条评论内容吗？', {
+                    time: 10000, //10s后自动关闭
+                    btnAlign: 'c',
+                    btn: ['确定', '取消'],
+                    yes: function (index) {
+                        layer.close(index);
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'blog:delComment' %}",
+                            data: {
+                                del_id: del_id,
+                                type: 'note'
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    if (del_level == 0 && reply_count == 1) {
+                                        $del_click.parents(".message-content").remove();
+                                    } else {
+                                        $del_click.parents(".text-box").find(".box-body").html("该内容已被用户删除");
+                                    }
+                                    layer.msg(result.msg, {icon: 6});
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    },
+                });
+            })
+            // 评论回复
+            $("body").delegate(".action-reply", "click", function () {
+                $reply_click = $(this);
+                layer.open({
+                    type: 1
+                    , title: '回复评论'
+                    , area: ['400px', '300px']
+                    , offset: 'auto'
+                    , content: $('#reply-div').html()
+                    , btn: ['发表回复', '取消回复']
+                    , btnAlign: 'c'
+                    , yes: function () {
+                        $content = layedit.getContent(reply_textarea);
+                        if ($content.length == 0) {
+                            layer.msg('亲~请先输入内容，然后再提交哦！', {icon: 5});
+                            return false;
+                        }
+                        var reply_level = parseInt($reply_click.parents(".message-content").attr("class").replace(/[^\d]/g, '')) + 1
+                        var reply_id = $reply_click.parents(".message-content").attr("id").replace(/[^\d]/g, '')
+                        var root_id = $reply_click.parents(".list-body").find("li").eq(0).attr("id").replace(/[^\d]/g, '')
+                        $.ajax({
+                            type: "POST",
+                            url: "{% url 'blog:postComment' %}",
+                            data: {
+                                section_id: "{{ section.id }}",
+                                content: layedit.getContent(reply_textarea),
+                                username: "{{ user.username }}",
+                                level: reply_level,
+                                reply_id: reply_id,
+                                root_id: root_id,
+                                type: 'note'
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    // 文本域内容非空，创建节点
+                                    var $record = createReplyEle($content, reply_id, reply_level);
+                                    var insert_id = "#all-" + reply_id
+                                    $(insert_id).after($record);
+                                    var timeago = layui.timeago;
+                                    timeago.render($('.timeago'));
+                                    layer.msg(result.msg, {icon: 6});
+                                    layui.layedit.clearContent(index);
+                                    layer.closeAll();
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    }
+                    , btn2: function (index) {
+                        layer.close(index);
+                    },
+                    success: function (layero, index) {
+                        // 设置发表评论编辑器
+                        reply_textarea = layedit.build($(layero).find('#reply'), {
+                            height: 150 //设置编辑器高度
+                            , tool: ['face', 'image', '|', 'link', 'unlink']
+                        });
+                        // 把富文本数据同步到<textarea>中
+                        form.verify({
+                            content: function (value) {
+                                return layedit.sync(reply_textarea);
+                            }
+                        });
+                    },
+                });
+            })
+
+            // 根据内容创建评论节点
+            function createEle(content) {
+                var $record = $('<ol class="list-body">\n' +
+                    '            <li class="message-content">\n' +
+                    '                <a href="#">\n' +
+                    '                    <img src="{{ MEDIA_URL }}{{ userinfo.photo }}" class="layui-nav-img img-rotate">\n' +
+                    '                </a>\n' +
+                    '                <div class="text-box">\n' +
+                    '                    <div class="box-info">\n' +
+                    '                        <a href="#">{{ user.username }}</a>\n' +
+                    '                        <span class="timeago" datetime="{% now "Y-m-d H:i:s" %}"></span>\n' +
+                    '                    </div>\n' +
+                    '                    <div class="box-body">\n' + content +
+                    '                    </div>\n' +
+                    '                    <div class="box-action">\n' +
+                    '                        <a href="javascript:;" class="action-like"><i class="fas fa-thumbs-up"></i>赞<em>0</em></a>\n' +
+                    '                        <a href="javascript:;" class="action-reply"><i class="fas fa-comment-alt"></i>回复</a>\n' +
+                    '                        <a href="javascript:;" class="action-delete"><i class="fas fa-trash-alt"></i>删除</a>\n' +
+                    '                    </div>\n' +
+                    '                </div>\n' +
+                    '            </li>\n' +
+                    '        </ol>')
+                return $record;
+            }
+
+            // 根据内容创建评论回复节点
+            function createReplyEle(content, reply_id, reply_level) {
+                var $record = $('<ol class="list-body">\n' +
+                    '            <li class="reply-' + reply_level + ' message-content" id="all-' + reply_id + '">\n' +
+                    '                <a href="#">\n' +
+                    '                    <img src="{{ MEDIA_URL }}{{ userinfo.photo }}" class="layui-nav-img img-rotate">\n' +
+                    '                </a>\n' +
+                    '                <div class="text-box">\n' +
+                    '                    <div class="box-info">\n' +
+                    '                        <a href="#">{{ user.username }}</a>\n' +
+                    '                        <span class="timeago" datetime="{% now "Y-m-d H:i:s" %}"></span>\n' +
+                    '                    </div>\n' +
+                    '                    <div class="box-body">\n' + content +
+                    '                    </div>\n' +
+                    '                    <div class="box-action">\n' +
+                    '                        <a href="javascript:;" class="action-like"><i class="fas fa-thumbs-up"></i>赞<em>0</em></a>\n' +
+                    '                        <a href="javascript:;" class="action-reply click-no"><i class="fas fa-comment-alt"></i>回复</a>\n' +
+                    '                        <a href="javascript:;" class="action-delete"><i class="fas fa-trash-alt"></i>删除</a>\n' +
+                    '                    </div>\n' +
+                    '                </div>\n' +
+                    '            </li>\n' +
+                    '        </ol>')
+                return $record;
+            }
+
+            // 图片点击放大
+            $('#editormd-view img').on('click', function () {
+                layer.photos({
+                    photos: '#editormd-view',
+                    closeBtn: 2,
+                    anim: 0
+                });
+            })
+            // 文章内容索引
+            var $content_index = $(".markdown-toc").html()
+            if ($content_index) {
+                $(".content-index").html($content_index)
+            } else {
+                $(".content-index").remove()
+            }
+            // 文章目录
+            var catalogue = tree.render({
+                elem: '#catalogue'  //绑定元素
+                , data: {{ catalogue_list | safe }}
+                , showLine: false // 关闭连接线
+                , click: function (obj) {
+                    if (obj.data.href) {
+                        window.location.href = obj.data.href
+                    } else {
+                        return false
+                    }
+                }
+            });
+            // 导航栏当前标签页
+            var note_id = "#note-" + {{ note.id }}
+            var m_note_id = "#m-note-" + {{ note.id }}
+            $(note_id).addClass("layui-this")
+            $(note_id).parents("li").addClass("layui-this")
+            $(m_note_id).addClass("layui-this")
+            $(m_note_id).parents("li").addClass("layui-nav-itemed")
+            // 目前当前章节
+            $("div[data-id={{ section.id }}]").find(".layui-tree-txt").css("color", "#2980b9")
+            // 点赞
+            $("#article-action>a").eq(0).click(function () {
+                $(this).animate({
+                    width: '45%'
+                }, 500, function () {
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'blog:articleLike' %}",
+                        data: {
+                            type: "note",
+                            section_id: "{{ section.id }}"
+                        },
+                        success: function (result) {
+                            if (result.code == 1) {
+                                $("#article-action>a").eq(0).css({'background': '#3498db', 'pointer-events': 'none'});
+                                $("#article-action>a").eq(0).find("i").text("已点赞")
+                                var like_num = parseInt($("#like_action").text()) + 1
+                                $("#like_action").text(like_num)
+                                layer.msg(result.msg, {icon: 6});
+                            } else {
+                                layer.alert(result.msg, {icon: 2});
+                            }
+                        },
+                        error: function (xhr) {
+                            alert(xhr.text());
+                        }
+                    })
+                })
+            })
+            // 打赏
+            $("#article-action>a").eq(1).hover(function () {
+                $("#reward-box").stop().stop().slideToggle(500)
+            })
+            // 添加收藏
+            $('#article-action .article-collection').click(function () {
+                var $like = $(this)
+                if ('{{ user.username }}') {
+                    if ($like.find("i").text() == '已收藏') {
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'blog:deleteCollection' %}",
+                            data: {
+                                section_id: "{{ section.id }}",
+                                type: "note"
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    $(".article-collection").removeClass("iscollection")
+                                    $(".article-collection").find('i').text("收藏")
+                                    var like_num = parseInt($("#collection_action").text()) - 1
+                                    $("#collection_action").text(like_num)
+                                    layer.msg(result.msg, {icon: 6});
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    } else {
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'blog:articleCollection' %}",
+                            data: {
+                                section_id: "{{ section.id }}",
+                                type: "note"
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    $(".article-collection").addClass("iscollection")
+                                    $(".article-collection").find('i').text("已收藏")
+                                    var like_num = parseInt($("#collection_action").text()) + 1
+                                    $("#collection_action").text(like_num)
+                                    layer.msg(result.msg, {icon: 6});
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    }
+                } else {
+                    layer.open({
+                        type: 1,
+                        title: '添加收藏',
+                        shadeClose: true,
+                        content: $('#collection-box').html(),
+                        btn: ['登录'],
+                        btnAlign: 'c',
+                        yes: function (index) {
+                            window.location.href = "{% url 'account:loginRegister' %}?next=" + window.location.pathname
+                            layer.close(index);
+                        }
+                    })
+                }
+            });
+            // 图片取消防盗链
+            $("#editormd-view img").each(function () {
+                old_src = $(this).attr('src')
+                new_src = 'https://images.weserv.nl/?url=' + old_src
+                $(this).attr("src", new_src);
+            })
+        });
+    </script>
+{% endblock %}

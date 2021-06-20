@@ -1,0 +1,96 @@
+{% extends 'base-blog.html' %}
+
+{% block title %}时间轴{% endblock %}
+
+{% block content %}
+    <main class="page-main">
+        <div class="layui-row">
+            <!--    页面主体部分-->
+            <div class="layui-col-md-offset2 layui-col-sm12 layui-col-md8 page-main-centre">
+                <div class="layui-row main-centre">
+                    <!--            主体左侧部分-->
+                    <div class="layui-col-md9 main-left">
+                        <!--            文章列表-->
+                        <div class="index-new time-shaft">
+                            <div class="layui-collapse" lay-filter="list">
+                                {% for date in date_list %}
+                                    <div class="layui-colla-item">
+                                        <h2 class="layui-colla-title">{{ date.0 }}({{ date.1 }}篇)</h2>
+                                        <div class="layui-colla-content">
+                                            <div>
+                                                <ul class="layui-timeline">
+                                                    <li class="layui-timeline-item long-ago">
+                                                        <i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop layui-timeline-axis"></i>
+                                                        <div class="layui-timeline-content layui-text">
+                                                            <div class="layui-timeline-title">long long ago</div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% include 'blog/aside.html' %}
+                    <!--            主体右侧部分-->
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // 导航栏当前标签页
+        $(".nav4").addClass("layui-this");
+        // 面板折叠
+        layui.use(['element', 'layer'], function () {
+            var element = layui.element;
+            var layer = layui.layer;
+            //监听折叠
+            element.on('collapse(list)', function (data) {
+                var title = $(data.title).text()
+                var year = title.split("年")[0]
+                var month = title.split("年")[1].split("月")[0]
+                var thisdate = $(this)
+                if (thisdate.parent("div").find("ul").length == 1) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'blog:timeArticle' %}",
+                        data: {
+                            year: year,
+                            month: month
+                        },
+                        success: function (result) {
+                            if (result.code == 1) {
+                                layui.each(result.data, function (index, item) {
+                                    var $list = createEle(item);
+                                    thisdate.parent("div").find(".layui-timeline").before($list)
+                                })
+                            } else {
+                                layer.alert(result.msg, {icon: 2});
+                            }
+                        },
+                        error: function (xhr) {
+                            alert(xhr.text());
+                        }
+                    })
+                }
+            });
+
+            // 根据内容创建节点
+            function createEle(item) {
+                var $list = $("<ul class=\"layui-timeline-item\">\n" +
+                    "        <i class=\"layui-icon layui-timeline-axis\"></i>\n" +
+                    "        <div class=\"layui-timeline-content layui-text\">\n" +
+                    "            <h3 class=\"layui-timeline-title\">" + item.created_time + "</h3>\n" +
+                    "            <a href=\"/blog/show-" + item.id + "\">《" + item.title + "》</a><br>\n" +
+                    "        </div>\n" +
+                    "     </ul>")
+                return $list;
+            }
+        });
+    </script>
+{% endblock %}

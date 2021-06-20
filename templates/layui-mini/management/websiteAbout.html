@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>关于页面编辑</title>
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'editormd/css/editormd.css' %}">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                更新时间:{{ time }}
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block about-textarea" id="input-textarea">
+                    <div id="test-editor">
+                        <textarea style="display:none;">{{ body }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" id="submit-btn">
+                <div class="layui-input-block submit-btn">
+                    <button type="submit" class="layui-btn" lay-submit="" lay-filter="commit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/js/lay-config.js' %}" charset="utf-8"></script>
+<script src="{% static 'editormd/editormd.js' %}" charset="utf-8"></script>
+<script>
+    // markdown编辑器
+    var editor = editormd("test-editor", {
+        width: "100%",
+        height: "800px",
+        path: "{% static 'editormd/lib/' %}",
+        emoji: true, // 开启表情的功能！ 图片的本地配置！
+        tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+        flowChart: true,             // 开启流程图支持，默认关闭
+        sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+        imageUpload: true,           // 本地图片上传，默认关闭
+        imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+        imageUploadURL: "{% url 'account:markdownUpload' %}",
+        // 适配全屏时按钮显示异常问题
+        onfullscreen: function () {
+            $("#submit-btn").hide()
+        },
+        onfullscreenExit: function () {
+            $("#submit-btn").show()
+        }
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('submit(commit)', function (data) {
+            console.log(editor.getMarkdown()) //当前容器的全部表单字段，名值对形式：{name: value}
+            $.ajax({
+                type: "POST",
+                url: '{% url "management:websiteAbout" %}',
+                data: {
+                    content: editor.getMarkdown(),
+                },
+                success: function (result) {
+                    if (result.code == 1) {
+                        layer.msg(result.msg, {icon: 6});
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

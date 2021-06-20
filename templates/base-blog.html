@@ -1,0 +1,311 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content={{ site.keywords }}>
+    <meta name="description" content={{ site.descript }}>
+    <meta name='referrer' content="no-referrer-when-downgrade">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome-free-5.11.2-web/css/all.min.css' %}" media='all'/>
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <script src="{% static 'layui/layui.js' %}" charset="utf-8"></script>
+    <script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+    {% block link %}{% endblock %}
+    {#头条搜索#}
+    <meta name="bytedance-verification-code" content="RAweXW/Li30Fs1KVWfQJ" />
+    {#必应搜索#}
+    <meta name="msvalidate.01" content="0B706DC4E27F508AA5889A273F759EB8" />
+    {#谷歌搜索#}
+    <meta name="google-site-verification" content="GtNO79LEUpHXJTZULN42OgdLYvzWzs04O_l_waRDqhE" />
+    {#360搜索#}
+    <meta name="360-site-verification" content="03c4710b08af2b2fec5bf3a45c256f69" />
+    {#搜狗搜索#}
+    <meta name="sogou_site_verification" content="ZFOpMx7y0J"/>
+    {#百度统计#}
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?5abb8d046dd1dd0d2ff4094f445b3079";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+{#头部#}
+<!--电脑版导航栏-->
+<nav class="nav-fixed">
+    <div class="nav-left">
+        <span><a class="nav-show-btn"><i></i></a></span>
+        <span class="logo">
+            <h1>
+                <a href="/" title="崔亮的博客">崔亮的博客</a>
+            </h1>
+        </span>
+    </div>
+    <ul class="layui-nav">
+        <li class="layui-nav-item layui-hide-xs nav1"><a href="/">首页</a></li>
+        <li class="layui-nav-item layui-hide-xs nav2">
+            <a href="javascript:">文章分类</a>
+            <dl class="layui-nav-child">
+                {% for category in categorys %}
+                    <dd id="category-{{ category.id }}"><a
+                            href="/blog/category-{{ category.id }}">{{ category.name }}</a></dd>
+                {% endfor %}
+            </dl>
+        </li>
+        <li class="layui-nav-item layui-hide-xs nav3">
+            <a href="javascript:">学习笔记</a>
+            <dl class="layui-nav-child">
+                {% for note in notes %}
+                    <dd id="note-{{ note.id }}"><a href="/blog/note-{{ note.id }}">{{ note.name }}</a></dd>
+                {% endfor %}
+            </dl>
+        </li>
+        <li class="layui-nav-item layui-hide-xs nav4">
+            <a href="{% url 'blog:timeAxis' %}">时间轴</a>
+        </li>
+        <li class="layui-nav-item layui-hide-xs nav5">
+            <a href="{% url 'blog:messageBoard' %}">留言板</a>
+        </li>
+        <li class="layui-nav-item layui-hide-xs nav6">
+            <a href="{% url 'blog:about' %}">关于</a>
+        </li>
+        <li class="layui-nav-item nav-user-online layui-hide-xs nav7">
+            {% if user.is_authenticated %}
+                {#                    用户已登录#}
+                {% if userinfo %}
+                    <a href="javascript:;"><img lay-src="{{ MEDIA_URL }}{{ userinfo.photo }}"
+                                                class="layui-nav-img">{{ user.username | slice:"8" }}
+                {% else %}
+                    <a href="javascript:;"><img lay-src="{{ MEDIA_URL }}{{ img.photo }}"
+                                                class="layui-nav-img">{{ user.username | slice:"8" }}
+                {% endif %}
+            </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="{% url 'account:account' %}">个人中心</a></dd>
+                    {% if user.is_superuser %}
+                        <dd><a href="{% url 'management:management' %}">网站管理</a></dd>
+                    {% endif %}
+                    <dd><a href="{% url 'account:logout' %}">退出登录</a></dd>
+                </dl>
+            {% else %}
+                {#                    用户未登录#}
+                <span>
+                        <a class="nav-user" href="{% url 'account:loginRegister' %}"><i
+                                class="layui-icon layui-icon-friends"></i></a>
+                    </span>
+            {% endif %}
+        </li>
+        <li class="nav-rignt">
+            <span><a class="nav-search" href="#"><i></i></a></span>
+        </li>
+    </ul>
+</nav>
+<!--滑动搜索框特效-->
+<div class="search-box">
+    <div class="search-form">
+        <form name="search" class="layui-form" method="get" action="{% url 'blog:search' %}">
+            {% csrf_token %}
+            {{ search_form.key }}
+            <input type="submit" name="submit" lay-submit="" value="搜索" id="submit">
+        </form>
+    </div>
+</div>
+<!--手机版侧边栏-->
+<div class="layui-side layui-side-menu side-close">
+    <div class="layui-side-scroll">
+        <ul class="layui-nav layui-nav-tree" id="LAY-system-side-menu" style="height: 100%">
+            <li data-name="home" class="layui-nav-item layui-nav-itemed side-home nav1">
+                <a href="/">
+                    <i class="layui-icon layui-icon-home"></i>
+                    <cite>首页</cite>
+                </a>
+            </li>
+            <li data-name="component" class="layui-nav-item">
+                <a href="javascript:">
+                    <i class="layui-icon layui-icon-component"></i>
+                    <cite>文章分类</cite>
+                    <span class="layui-nav-more"></span></a>
+                <dl class="layui-nav-child">
+                    {% for category in categorys %}
+                        <dd id="m-category-{{ category.id }}"><a
+                                href="/blog/category-{{ category.id }}">{{ category.name }}</a></dd>
+                    {% endfor %}
+                </dl>
+            </li>
+            <li data-name="template" class="layui-nav-item nav3">
+                <a href="javascript:">
+                    <i class="layui-icon layui-icon-template"></i>
+                    <cite>学习笔记</cite>
+                    <span class="layui-nav-more"></span></a>
+                    <dl class="layui-nav-child">
+                    {% for note in notes %}
+                        <dd id="m-note-{{ note.id }}"><a href="/blog/note-{{ note.id }}">{{ note.name }}</a></dd>
+                    {% endfor %}
+                </dl>
+            </li>
+            <li data-name="senior" class="layui-nav-item nav4">
+                <a href="{% url 'blog:timeAxis' %}">
+                    <i class="layui-icon layui-icon-senior"></i>
+                    <cite>时间轴</cite></a>
+            </li>
+            <li data-name="user" class="layui-nav-item nav5">
+                <a href="{% url 'blog:messageBoard' %}">
+                    <i class="layui-icon layui-icon-user"></i>
+                    <cite>留言板</cite></a>
+            </li>
+            <li data-name="get" class="layui-nav-item nav6">
+                <a href="{% url 'blog:about' %}">
+                    <i class="layui-icon layui-icon-auz"></i>
+                    <cite>关于</cite>
+                </a>
+            </li>
+            {% if user.is_authenticated %}
+                <li data-name="component" class="layui-nav-item nav7">
+                    <a href="javascript:">
+                        <i class="layui-icon layui-icon-friends"></i>
+                        <cite>{{ user.username | slice:"10" }}</cite>
+                        <span class="layui-nav-more"></span></a>
+                    <dl class="layui-nav-child">
+                        <dd data-name="button">
+                            <a href="{% url 'account:account' %}">个人中心</a>
+                        </dd>
+                        {% if user.is_superuser %}
+                            <dd data-name="nav">
+                                <a href="{% url 'management:management' %}">网站管理</a>
+                            </dd>
+                        {% endif %}
+                        <dd data-name="button">
+                            <a href="{% url 'account:logout' %}">退出登录</a>
+                        </dd>
+                    </dl>
+                </li>
+            {% else %}
+                <li data-name="component" class="layui-nav-item nav7">
+                    <a href="{% url 'account:loginRegister' %}">
+                        <i class="layui-icon layui-icon-friends"></i>
+                        <cite>登录&注册</cite>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{#正文#}
+{% block content %}
+
+{% endblock %}
+{#底部#}
+<!--回到顶部按钮-->
+<div id="back-top" class="back-top suspend"><a href="javascript:;"><i class="layui-icon layui-icon-top"></i></a></div>
+<footer>
+    <div class="footer">
+        <span><p>{{ site.copyright }}</p></span>
+        <p>|</p>
+        <span><a href="https://beian.miit.gov.cn/">陇ICP备19001718号</a></span>
+        <p>|</p>
+        <span><a
+                href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011202002337">京公安备11011202002337号</a></span>
+        <p>|</p>
+        <span><a href="{% url 'blog:link' %}">友情链接</a></span>
+        <p>|</p>
+        <span><p>Powered by Django</p></span>
+    </div>
+</footer>
+{#js部分#}
+
+<script>
+    // 日期显示为几天前
+    layui.config({
+        version: true,
+        base: "{% static 'timeago/' %}"
+    }).extend({
+        timeago: 'timeago'
+    }).use(['timeago', 'layer'], function () {
+        var $ = layui.jquery;
+        var timeago = layui.timeago;
+        var layer = layui.layer;
+        timeago.render($('.timeago'));
+    });
+    // ajax加载动画
+    var load
+    $(document).on('ajaxStart', function () {
+        load = layer.load();
+    })
+    $(document).on('ajaxComplete', function () {
+        layer.close(load);
+    })
+    //导航的hover效果、二级菜单等功能，需要依赖element模块
+    layui.use('element', function () {
+        var element = layui.element;
+        //监听导航点击
+        element.on('nav(demo)', function (elem) {
+            //console.log(elem)
+            layer.msg(elem.text());
+        });
+    });
+    // 手机侧边栏
+    $('.nav-show-btn').on("click", function () {
+        $('.nav-show-btn').toggleClass('nav-close-btn');
+        $('.side-close').toggleClass('side-show');
+        $('.page-main').toggleClass('page-main-side');
+        $('.logo').toggleClass('logo-side');
+    });
+    // 下拉搜索框
+    $('.nav-search').on("click", function () {
+        setTimeout(function () {
+            $('.nav-search').toggleClass('nav-search-close');
+            $('.search-box').toggleClass('search-box-show');
+            $('.search-form').toggle();
+        }, 500)
+    });
+    // 导航栏吸顶效果
+    $(document).ready(function () {
+        var p = 0;
+        t = 0;
+        $(window).scroll(function () {
+            p = $(this).scrollTop();
+            if (t < p) {
+                $('.nav-fixed').stop().slideUp(500);
+            } else {
+                $('.nav-fixed').stop().slideDown(500);
+            }
+            t = p;
+        })
+    })
+
+    /*判断当在第一屏的时候，回到顶部按钮的时候隐藏*/
+    $(window).scroll(function () {
+        var scroll_len = $(window).scrollTop();
+        if (scroll_len > 120) {
+            $('#back-top').stop().fadeIn(1000);
+        } else {
+            $('#back-top').stop().fadeOut(1000);
+        }
+    });
+    $('#back-top').click(function (e) {
+        $("body,html").animate({scrollTop: 0}, 1000);
+    })
+
+    // 图片懒加载
+    layui.use('flow', function () {
+        var flow = layui.flow;
+        //当你执行这样一个方法时，即对页面中的全部带有lay-src的img元素开启了懒加载（当然你也可以指定相关img）
+        flow.lazyimg();
+    });
+</script>
+{% block js %}
+
+{% endblock %}
+</body>
+</html>
+

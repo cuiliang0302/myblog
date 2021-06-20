@@ -1,0 +1,153 @@
+{
+  "homeInfo": {
+    "title": "流量统计",
+    "href": "/management/dashboard"
+  },
+  "logoInfo": {
+    "title": "崔亮的博客",
+    "image": "https://cdn.cuiliangblog.cn/static/images/favicon-gray.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "网站管理",
+      "icon": "",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "文章管理",
+          "href": "",
+          "icon": "fa fa-calendar-week",
+          "target": "",
+          "child": [
+            {
+              "title": "文章发布",
+              "href": "/management/articleAdd",
+              "icon": "fa fa-calendar-plus",
+              "target": "_self"
+            },
+            {
+              "title": "文章列表",
+              "href": "/management/articleList",
+              "icon": "fa fa-clipboard-list",
+              "target": "_self"
+            },
+            {
+              "title": "文章分类",
+              "href": "/management/articleCategory",
+              "icon": "fa fa-calendar-alt",
+              "target": "_self"
+            },
+            {
+              "title": "文章标签",
+              "href": "/management/articleTag",
+              "icon": "fa fa-tags",
+              "target": "_self"
+            },
+            {
+              "title": "文章评论",
+              "href": "/management/articleComment",
+              "icon": "fa fa-comment-alt",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "笔记管理",
+          "href": "",
+          "icon": "fa fa-journal-whills",
+          "target": "",
+          "child": [
+            {
+              "title": "笔记发布",
+              "href": "/management/sectionAdd",
+              "icon": "fa fa-book-medical",
+              "target": "_self"
+            },
+            {
+              "title": "笔记列表",
+              "href": "/management/sectionList",
+              "icon": "fa fa-book",
+              "target": "_self"
+            },
+            {
+              "title": "笔记名称",
+              "href": "/management/sectionNote",
+              "icon": "fa fa-atlas",
+              "target": "_self"
+            },
+            {
+              "title": "目录编排",
+              "href": "/management/sectionCatalog",
+              "icon": "fa fa-crutch",
+              "target": "_self"
+            },
+            {
+              "title": "笔记评论",
+              "href": "/management/sectionComment",
+              "icon": "fa fa-comment-dots",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "网站管理",
+          "href": "",
+          "icon": "fa fa-cogs",
+          "target": "_self",
+          "child": [
+            {
+              "title": "网站配置",
+              "href": "/management/websiteConfig",
+              "icon": "fa fa-cog",
+              "target": "_self"
+            },
+            {
+              "title": "博主信息",
+              "href": "/management/BloggerInfo",
+              "icon": "fa fa-info",
+              "target": "_self"
+            },
+            {
+              "title": "关于页面",
+              "href": "/management/websiteAbout",
+              "icon": "fa fa-pager",
+              "target": "_self"
+            },
+            {
+              "title": "轮播管理",
+              "href": "/management/websiteCarousel",
+              "icon": "fa fa-laptop-code",
+              "target": "_self"
+            },
+            {
+              "title": "友链管理",
+              "href": "/management/websiteLink",
+              "icon": "fa fa-link",
+              "target": "_self"
+            },
+            {
+              "title": "留言管理",
+              "href": "/management/websiteLeaveMessage",
+              "icon": "fa fa-comments",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "用户管理",
+          "href": "/management/managementUser",
+          "icon": "fa fa-user-cog",
+          "target": "_self"
+        }
+      ]
+    },
+    {
+      "title": "<a href=\"/\">博客首页<a>",
+      "icon": "",
+      "href": "",
+      "target": "_blank"
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文章发布</title>
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'editormd/css/editormd.css' %}">
+</head>
+<body>
+
+
+<div class="cintent-card">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">文章标题：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" lay-verify="required" lay-reqtext="请填写文章标题" placeholder="请输入文章标题"
+                       class="layui-input" value="">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文章分类：</label>
+            <div class="layui-input-block">
+                <select id="which_category" name="category_id">
+                    {% for category in category_all %}
+                        <option value={{ category.id }}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文章摘要：</label>
+            <div class="layui-input-block">
+                <input type="text" name="excerpt" lay-verify="required" lay-reqtext="请填写文章摘要" autocomplete="off"
+                       placeholder="请输入摘要"
+                       class="layui-input" value="">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否推荐：</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="recommended" lay-skin="switch" lay-text="是|否">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文章标签：</label>
+            <div class="layui-input-block">
+                {% for tag in tag_all %}
+                    <input type="checkbox" name="tag" title={{ tag.name }} value={{ tag.id }}>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">封面图片：</label>
+            <div class="layui-input-block article-photo-change">
+                <img src="{{ MEDIA_URL }}{{ img.cover }}" id="cover-img" width="300px" height="200px">
+                <button type="button" class="layui-btn layui-btn-normal" id="editimg">修改封面</button>
+                <tip>点击图片查看大图，图片分辨率：300*200</tip>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文章内容：</label>
+            <div class="layui-input-block" id="input-textarea">
+                <div id="test-editor">
+                    <textarea style="display:none;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" id="submit-btn">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="release">立即发布</button>
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="save">暂存草稿</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/js/lay-config.js' %}" charset="utf-8"></script>
+<script src="{% static 'layui-mini/js/lay-module/layuimini/miniTab.js' %}" charset="utf-8"></script>
+<script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+<script src="{% static 'editormd/editormd.js' %}" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'miniTab', 'croppers'], function () {
+        var $ = layui.jquery
+            , form = layui.form
+            , croppers = layui.croppers
+            , layer = layui.layer
+            , miniTab = layui.miniTab;
+        // markdown编辑器
+        var editor = editormd("test-editor", {
+            width: "100%",
+            height: "800px",
+            path: "{% static 'editormd/lib/' %}",
+            emoji: true, // 开启表情的功能！ 图片的本地配置！
+            tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 开启流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+            imageUpload: true,           // 本地图片上传，默认关闭
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "{% url 'account:markdownUpload' %}",
+            // 适配全屏时按钮显示异常问题
+            onfullscreen: function () {
+                $("#submit-btn").hide()
+            },
+            onfullscreenExit: function () {
+                $("#submit-btn").show()
+            }
+        });
+        //创建一个图片上传组件
+        croppers.render({
+            elem: '#editimg'
+            , saveW: 300     //保存宽度
+            , saveH: 200
+            , mark: 3 / 2    //选取比例
+            , area: "75%"  //弹窗宽度
+            , url: "{% url "account:imageUpload" %}"  //图片上传接口返回和（layui 的upload 模块）返回的JOSN一样
+            , data: {type: 'cover'}
+            , done: function (src) { //上传完毕回调
+                console.log(src)
+                $("#cover-img").attr('src', src);
+            }
+        });
+        // 立即发布按钮
+        form.on('submit(release)', function (data) {
+            var tags = []
+            $.each($('input[name="tag"]:checked'), function (i, val) {
+                tags.push($(val).val())
+            })
+            var recommended
+            if (data.field.recommended == "on") {
+                recommended = 1
+            } else {
+                recommended = 0
+            }
+            $.ajax({
+                type: "POST",
+                url: "{% url 'management:articleAdd' %}",
+                data: {
+                    title: data.field.title,
+                    category_id: data.field.category_id,
+                    excerpt: data.field.excerpt,
+                    tags: tags.toString(),
+                    cover_img: $('#cover-img')[0].src,
+                    content: editor.getMarkdown(),
+                    recommended: recommended,
+                    type: "release",
+                },
+                success: function (result) {
+                    if (result.code == 1) {
+                        layer.msg(result.msg, {icon: 6});
+                        setTimeout(function () {
+                            miniTab.deleteCurrentByIframe();
+                        }, 2000);
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+        // 暂存草稿按钮
+        form.on('submit(save)', function (data) {
+            var tags = []
+            $.each($('input[name="tag"]:checked'), function (i, val) {
+                tags.push($(val).val())
+            })
+            var recommended
+            if (data.field.recommended == "on") {
+                recommended = 1
+            } else {
+                recommended = 0
+            }
+            $.ajax({
+                type: "POST",
+                url: "{% url 'management:articleAdd' %}",
+                data: {
+                    title: data.field.title,
+                    category_id: data.field.category_id,
+                    excerpt: data.field.excerpt,
+                    tags: tags.toString(),
+                    cover_img: $('#cover-img')[0].src,
+                    content: editor.getMarkdown(),
+                    recommended: recommended,
+                    type: "save",
+                },
+                success: function (result) {
+                    if (result.code == 1) {
+                        layer.msg(result.msg, {icon: 6});
+                        setTimeout(function () {
+                            miniTab.deleteCurrentByIframe();
+                        }, 2000);
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.text());
+                }
+            })
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+        // 图片点击放大
+        $('.article-photo-change img').on('click', function () {
+            layer.photos({
+                photos: '.article-photo-change',
+                closeBtn: 2,
+                anim: 0
+            });
+        })
+    });
+</script>
+</body>
+</html>

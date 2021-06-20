@@ -1,0 +1,47 @@
+/*个人信息页*/
+.cintent-card .layui-form-item .photo-change {
+    width: 250px;
+}
+
+.cintent-card .layui-form-item .photo-change img {
+    border-radius: 10px;
+    width: 100px;
+    height: 100px;
+}
+
+.cintent-card .layui-form-item .photo-change button {
+    margin-left: 15px;
+}
+#change-email {
+    padding: 0 !important;
+}
+/*修改个人信息*/
+.layui-form-item ul li {
+    display: inline-block;
+    padding-top: 5px;
+    margin-right: 60px;
+}
+.layui-form-item .layui-form-radio {
+    margin: 0;
+}
+/*移动设备适配*/
+@media screen and (max-width: 768px) {
+    /*个人中心修改密码信息页*/
+    .layui-layout-body .layui-body .manage-body, .layui-layout-body .layui-body .layui-card-body {
+        padding-left: 0;
+    }
+
+    .layui-form-item .layui-btn {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .layui-table .layui-btn {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .layui-table .label-tag {
+        margin-top: 10px;
+    }
+}

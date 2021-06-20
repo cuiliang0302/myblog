@@ -1,0 +1,164 @@
+{% extends 'base-blog.html' %}
+{% load static %}
+{% block title %}{{ site.index_title }}{% endblock %}
+{% block content %}
+    <main class="page-main">
+        <div class="layui-row">
+            <div class="layui-col-md-offset2 layui-col-sm12 layui-col-md8 page-main-centre">
+                <div class="layui-row main-centre">
+                    <!--            主体左侧部分-->
+                    <div class="layui-col-md9 main-left">
+                        <!--            轮播图片-->
+                        <div class="carousel-img layui-carousel" id="test10">
+                            <div carousel-item="" class="img-zoom">
+                                {% for carousel in carousels %}
+                                    <div><a href={{ carousel.url }} target="_blank" title={{ carousel.info }}><img
+                                            lay-src='{{ MEDIA_URL }}{{ carousel.img }}'></a></div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!--            最新文章-->
+                        <div class="index-new">
+                            <h4>
+                                <strong>
+                                    <span>🆕 最新文章</span>
+                                </strong>
+                            </h4>
+                        </div>
+                    </div>
+                    {% include 'blog/aside.html' %}
+                    <!--            主体右侧部分-->
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        layui.use(['carousel', 'form', 'flow'], function () {
+            var carousel = layui.carousel
+                , form = layui.form
+                , flow = layui.flow
+                , $ = layui.jquery
+                , img_height;
+            //图片轮播
+            var w = $(window).width(); //浏览器当前窗口可视区域宽度
+            if (w > 768) {
+                img_height = 400
+            } else {
+                img_height = 200
+            }
+            carousel.render({
+                elem: '#test10'
+                , width: '100%'
+                , height: img_height
+                , interval: 5000
+            });
+            //事件
+            carousel.on('change(test4)', function (res) {
+                console.log(res)
+            });
+            var $ = layui.$, active = {
+                set: function (othis) {
+                    var THIS = 'layui-bg-normal'
+                        , key = othis.data('key')
+                        , options = {};
+                    othis.css('background-color', '#5FB878').siblings().removeAttr('style');
+                    options[key] = othis.data('value');
+                    ins3.reload(options);
+                }
+            };
+            //监听开关
+            form.on('switch(autoplay)', function () {
+                ins3.reload({
+                    autoplay: this.checked
+                });
+            });
+            $('.demoSet').on('keyup', function () {
+                var value = this.value
+                    , options = {};
+                if (!/^\d+$/.test(value)) return;
+
+                options[this.name] = value;
+                ins3.reload(options);
+            });
+            // 最新文章流加载
+            flow.load({
+                elem: '.index-new' //流加载容器
+                , done: function (page, next) { //执行下一页的回调
+                    //数据插入
+                    setTimeout(function () {
+                        var lis = [];
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'blog:indexPage' %}",
+                            async: false,
+                            data: {
+                                limit: 5,
+                                page: page
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    layui.each(result.data, function (index, item) {
+                                        var article = ("<div class=\"layui-row layui-col-space20 article-box\">\n" +
+                                            "    <div class=\"layui-col-xs12 layui-col-md4\">\n" +
+                                            "        <div class=\"img-cover img-zoom\">\n" +
+                                            "            <a href=\"/blog/show-" + item.id + "\" title=\""+item.title+"\">\n" +
+                                            "                <img width=\"100%\" lay-src=\"{{ MEDIA_URL }}" + item.img + "\">\n" +
+                                            "            </a>\n" +
+                                            "        </div>\n" +
+                                            "    </div>\n" +
+                                            "    <div class=\"layui-col-xs12 layui-col-md8\">\n" +
+                                            "        <h3>\n" +
+                                            "            <a href=\"/blog/show-" + item.id + "\">" + item.title + "</a>\n" +
+                                            "        </h3>\n" +
+                                            "        <p class=\"txt-cont hidden-xs\">\n" +
+                                            "            <a href=\"/blog/show-" + item.id + "\">" + item.excerpt + "</a>\n" +
+                                            "        </p>\n" +
+                                            "        <div class=\"list-article-info\">\n" +
+                                            "            <a href=\"/blog/category-" + item.category_id + "\" class=\"label-tag tag-color-" + item.category_id + "\">" + item.category + "</a>\n" +
+                                            "            <span>\n" +
+                                            "                    <i class=\"fas fa-clock\">\n" +
+                                            "                        <span class=\"timeago\" datetime=\"" + item.created_time + "\" ></span>" +
+                                            "                    </i>\n" +
+                                            "                </span>\n" +
+                                            "            <span>\n" +
+                                            "                    <i class=\"fas fa-eye\">" + item.view + "</i>\n" +
+                                            "                </span>\n" +
+                                            "            <span>\n" +
+                                            "                    <i class=\"fas fa-thumbs-up\">" + item.like + "</i>\n" +
+                                            "                </span>\n" +
+                                            "            <span>\n" +
+                                            "                    <i class=\"fas fa-heart\">" + item.collection + "</i>\n" +
+                                            "                </span>\n" +
+                                            "            <span>\n" +
+                                            "                    <i class=\"fas fa-comment-dots\">" + item.comment + "</i>\n" +
+                                            "                </span>\n" +
+                                            "        </div>\n" +
+                                            "    </div>\n" +
+                                            "</div>")
+                                        lis.push(article)
+                                    })
+                                    return lis;
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                        //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
+                        //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
+                        next(lis.join(''), page < {{page_count}});
+                        var timeago = layui.timeago;
+                        timeago.render($('.timeago'));
+                    }, 500);
+                }
+            });
+            // 导航栏当前标签页
+            $(".nav1").addClass("layui-this");
+        });
+    </script>
+{% endblock %}

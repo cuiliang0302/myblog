@@ -1,0 +1,161 @@
+{% extends 'base-blog.html' %}
+
+{% block title %}{{ tag_name }}标签列表-崔亮的博客{% endblock %}
+
+{% block content %}
+    <!--中间主体部分-->
+    <main class="page-main  clearfix">
+        <div class="layui-row">
+            <!--        &lt;!&ndash;    页面左侧留空&ndash;&gt;-->
+            <!--        <div class="layui-hide-xs layui-col-sm1 layui-col-md2 left-null">-->
+        </div>
+        <!--    页面主体部分-->
+        <div class="layui-col-md-offset2 layui-col-sm12 layui-col-md8 page-main-centre">
+            <div class="layui-row main-centre">
+                <!--            主体左侧部分-->
+                <div class="layui-col-md9 main-left">
+                    <!--                    位置信息-->
+                    <blockquote class="layui-elem-quote location suspend">
+                        <p>您的位置： <a href="/">首页</a>
+                            <i class="layui-icon layui-icon-next"></i>
+                            <span>标签分类</span>
+                            <i class="layui-icon layui-icon-next"></i>
+                            <span>{{ tag_name }}</span>
+                        </p>
+                    </blockquote>
+                    <!--            文章列表-->
+                    <div class="index-new">
+                        <h4 id="list-title">
+                            <strong>
+                                <span>📜 文章列表</span>
+                            </strong>
+                        </h4>
+                        <div id="paging"></div>
+                    </div>
+                </div>
+                {% include 'blog/aside.html' %}
+                <!--            主体右侧部分-->
+            </div>
+        </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    <script>
+
+        layui.use(['laypage', 'layer', 'flow'], function () {
+            var laypage = layui.laypage
+                , layer = layui.layer
+                , flow = layui.flow;
+
+            // 分页
+            laypage.render({
+                elem: 'paging'
+                , count: {{ count }}
+                , limit: 10
+                , limits: [10, 20, 30, 40, 50]
+                , layout: ['prev', 'page', 'next', 'limit', 'limits', 'count']
+                , jump: function (obj, first) {
+                    if (first) {
+                        // 获取第一页内容
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'blog:tagPage' %}",
+                            data: {
+                                tag_id: {{ tag_id }},
+                                limit: obj.limit,
+                                page: 1
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    $(".article-box").remove();
+                                    $("#list-title").after(createEle(result));
+                                    // 时间显示几天前
+                                    var timeago = layui.timeago;
+                                    timeago.render($('.timeago'));
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    } else {
+                        //换页执行
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'blog:tagPage' %}",
+                            data: {
+                                tag_id: {{ tag_id }},
+                                limit: obj.limit,
+                                page: obj.curr
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    $(".article-box").remove();
+                                    $("#list-title").after(createEle(result));
+                                    // 时间显示几天前
+                                    var timeago = layui.timeago;
+                                    timeago.render($('.timeago'));
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    }
+                }
+            });
+        });
+
+        // 根据ajax返回分页结果创建内容
+        function createEle(result) {
+            var lis = [];
+            layui.each(result.data, function (index, item) {
+                var article = $("<div class=\"layui-row layui-col-space20 article-box\">\n" +
+                    "    <div class=\"layui-col-xs12 layui-col-md4\">\n" +
+                    "        <div class=\"img-cover img-zoom\">\n" +
+                    "            <a href=\"/blog/show-" + item.id + "\" title=\"" + item.title + "\">\n" +
+                    "                <img width=\"100%\" lay-src=\"{{ MEDIA_URL }}" + item.img + "\">\n" +
+                    "            </a>\n" +
+                    "        </div>\n" +
+                    "    </div>\n" +
+                    "    <div class=\"layui-col-xs12 layui-col-md8\">\n" +
+                    "        <h3>\n" +
+                    "            <a href=\"/blog/show-" + item.id + "\">" + item.title + "</a>\n" +
+                    "        </h3>\n" +
+                    "        <p class=\"txt-cont hidden-xs\">\n" +
+                    "            <a href=\"/blog/show-" + item.id + "\">" + item.excerpt + "</a>\n" +
+                    "        </p>\n" +
+                    "        <div class=\"list-article-info\">\n" +
+                    "            <a href=\"/blog/category-" + item.category_id + "\" class=\"label-tag tag-color-" + item.category_id + "\">" + item.category + "</a>\n" +
+                    "            <span>\n" +
+                    "                    <i class=\"fas fa-clock\">\n" +
+                    "                       <span class=\"timeago\" datetime=\"" + item.created_time + "\"'></span>" +
+                    "                    </i>\n" +
+                    "                </span>\n" +
+                    "            <span>\n" +
+                    "                    <i class=\"fas fa-eye\">" + item.view + "</i>\n" +
+                    "                </span>\n" +
+                    "            <span>\n" +
+                    "                    <i class=\"fas fa-thumbs-up\">" + item.like + "</i>\n" +
+                    "                </span>\n" +
+                    "            <span>\n" +
+                    "                    <i class=\"fas fa-heart\">" + item.collection + "</i>\n" +
+                    "                </span>\n" +
+                    "            <span>\n" +
+                    "                    <i class=\"fas fa-comment-dots\">" + item.comment + "</i>\n" +
+                    "                </span>\n" +
+                    "        </div>\n" +
+                    "    </div>\n" +
+                    "</div>")
+                lis.push(article);
+            });
+            return lis;
+        }
+    </script>
+{% endblock %}

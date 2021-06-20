@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文章分类</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{% static 'layui-mini/lib/layui-v2.5.5/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'layui-mini/css/public.css' %}" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div class="layui-form layui-form-pane">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">文章分类名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="category" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加</button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除</button>
+            </div>
+        </script>
+        <table class="layui-hide" id="currentTable" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="TableBar">
+            <a class="layui-btn layui-btn-xs data-count-view" lay-event="view">
+                <i class="layui-icon layui-icon-read"></i>查看</a>
+            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">
+                <i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">
+                <i class="layui-icon layui-icon-delete"></i>删除</a>
+        </script>
+    </div>
+</div>
+<script src="{% static 'layui-mini/lib/layui-v2.5.5/layui.js' %}" charset="utf-8"></script>
+<script src="{% static 'jquery-3.5.1/jquery-3.5.1.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'js/csrf.js' %}" charset="utf-8"></script>
+<script>
+    // 打开新窗口
+    function open_win(url) {
+        window.open(url);
+    }
+</script>
+<script>
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+
+
+        // 初始化表格
+        table.render({
+            elem: '#currentTable',
+            url: "{% url 'account:tableData' %}?type=article_category",//数据接口,
+            toolbar: '#toolbar',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            title: '文章分类表',
+            cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'}
+                , {field: 'id', title: 'ID', sort: true, fixed: 'left'}
+                , {
+                    field: 'name', title: '分类名称', sort: true, templet: function (res) {
+                        var str = '<span><a href="#" onclick="open_win(\'/blog/category-' + res.id + '\')">' + res.name + '</a></span>'
+                        return str;
+                    }
+                }
+                , {field: 'article_count', title: '文章数', sort: true}
+                , {title: '操作', toolbar: '#TableBar'}
+            ]],
+            initSort: {
+                field: 'article_count' //排序字段，对应 cols 设定的各字段名
+                , type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+            },
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            page: true,
+            even: true
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+            if (data.field.category.length == 0) {
+                layer.msg("请输入文章分类名！", {icon: 2})
+                return false;
+            }
+            var data = 'type=category_name&category=' + data.field.category
+            var url = '/account/tableSearch?' + data
+            //执行表格数据重载
+            table.reload('currentTable', {
+                url: url
+                , where: {
+                    searchParams: result
+                }
+            }, 'data');
+        });
+
+        // 头工具栏事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'add') {
+                // 监听添加操作
+                var index = layer.open({
+                    title: '添加分类',
+                    type: 1,
+                    shade: 0.2,
+                    shadeClose: true,
+                    content: '<div class="collection-box-div">\n' +
+                        '    <div class="collection-text">\n' +
+                        '        请输入新文章分类名:\n' +
+                        '    </div>\n' +
+                        '    <div class="layui-input-inline">\n' +
+                        '        <input type="text" name="categoryname" lay-verify="required" lay-reqtext="请填写文章分类名"\n' +
+                        '               autocomplete="off" class="layui-input">\n' +
+                        '    </div>\n' +
+                        '</div>',
+                    btn: ['确定', '取消'],
+                    btnAlign: 'c',
+                    yes: function () {
+                        var categoryname = $('input[name="categoryname"]').val()
+                        $.ajax({
+                            type: "POST",
+                            url: "{% url 'management:categoryAdd' %}",
+                            data: {
+                                name: categoryname,
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    layer.msg(result.msg, {icon: 6});
+                                    //执行表格数据重载
+                                    var data = 'type=article_category'
+                                    var url = '/account/tableData?' + data
+                                    table.reload('currentTable', {
+                                        url: url
+                                        , where: {
+                                            searchParams: result
+                                        }
+                                    }, 'data');
+                                } else {
+                                    layer.alert(result.msg, {icon: 2});
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                        layer.closeAll();
+                    },
+                    btn2: function () {
+                        layer.closeAll();
+                    }
+                });
+            } else if (obj.event === 'delete') {
+                // 监听删除操作
+                var checkStatus = table.checkStatus('currentTable')
+                    , data = checkStatus.data;
+                layer.confirm('确定要删除吗？', function (index) {
+                    var delidArr = []
+                    data.forEach(function (array) {
+                        delidArr.push(array.id)
+                    })
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'management:categoryDel' %}",
+                        data: {
+                            delidArr: delidArr.toString(),
+                        },
+                        success: function (result) {
+                            if (result.code == 1) {
+                                layer.msg(result.msg, {icon: 6});
+                                //执行表格数据重载
+                                var data = 'type=article_category'
+                                var url = '/account/tableData?' + data
+                                table.reload('currentTable', {
+                                    url: url
+                                    , where: {
+                                        searchParams: result
+                                    }
+                                }, 'data');
+                            } else {
+                                layer.alert(result.msg, {icon: 2});
+                            }
+                        },
+                        error: function (xhr) {
+                            alert(xhr.text());
+                        }
+                    })
+                    layer.closeAll();
+                })
+            }
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            console.log(obj)
+        });
+        // 监听行工具事件
+        table.on('tool(currentTableFilter)', function (obj) {
+            if (obj.event === 'edit') {
+                // 修改分类
+                var index = layer.open({
+                    title: '编辑分类',
+                    type: 1,
+                    shade: 0.2,
+                    shadeClose: true,
+                    content: '<div class="collection-box-div">\n' +
+                        '    <div class="collection-text">\n' +
+                        '        请输入新文章分类名:\n' +
+                        '    </div>\n' +
+                        '    <div class="layui-input-inline">\n' +
+                        '        <input type="text" id="categoryname" name="categoryname" lay-verify="required" lay-reqtext="请填写文章分类名"\n' +
+                        '               autocomplete="off" class="layui-input"> ' +
+                        '    </div>\n' +
+                        '</div>',
+                    btn: ['确定', '取消'],
+                    btnAlign: 'c',
+                    yes: function () {
+                        var categoryname = $('input[name="categoryname"]').val()
+                        $.ajax({
+                            type: "POST",
+                            url: "{% url 'management:categoryEdit' %}",
+                            data: {
+                                category_id: obj.data.id,
+                                name: categoryname
+                            },
+                            success: function (result) {
+                                if (result.code == 1) {
+                                    layer.msg(result.msg, {icon: 6});
+                                    layer.closeAll();
+                                    //执行表格数据重载
+                                    var data = 'type=article_category'
+                                    var url = '/account/tableData?' + data
+                                    table.reload('currentTable', {
+                                        url: url
+                                        , where: {
+                                            searchParams: result
+                                        }
+                                    }, 'data');
+                                } else {
+                                    layer.msg(result.msg, {icon: 2});
+                                    layer.closeAll();
+                                }
+                            },
+                            error: function (xhr) {
+                                alert(xhr.text());
+                            }
+                        })
+                    },
+                    btn2: function () {
+                        layer.closeAll();
+                    }
+                });
+            } else if (obj.event === 'delete') {
+                // 删除分类
+                layer.confirm('确定要删除吗？', function (index) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'management:categoryDel' %}",
+                        data: {del_id: obj.data.id},
+                        success: function (result) {
+                            if (result.code == 1) {
+                                layer.msg(result.msg, {icon: 6});
+                                setTimeout(function () {
+                                    layer.closeAll();
+                                }, 2000);
+                                //执行表格数据重载
+                                var data = 'type=article_category'
+                                var url = '/account/tableData?' + data
+                                table.reload('currentTable', {
+                                    url: url
+                                    , where: {
+                                        searchParams: result
+                                    }
+                                }, 'data');
+                            } else {
+                                layer.msg(result.msg, {icon: 2});
+                                layer.closeAll();
+                            }
+                        },
+                        error: function (xhr) {
+                            alert(xhr.text());
+                        }
+                    })
+                });
+            } else if (obj.event === 'view') {
+                // 查看分类
+                var url = '/blog/category-' + obj.data.id
+                open_win(url)
+            }
+        });
+    });
+</script>
+</body>
+</html>
